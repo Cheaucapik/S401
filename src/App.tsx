@@ -11,9 +11,11 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import Formations from './screens/Formations';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+  return <Formations />;
 
   return (
     <SafeAreaProvider>
