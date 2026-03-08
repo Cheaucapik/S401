@@ -7,6 +7,7 @@ const PastilleActive = ({ children, focused }: { children: React.ReactNode, focu
     <View style={[
         styles.pastille, 
         { backgroundColor: focused ? Colors.light_blue : 'transparent',
+          marginBottom: focused ? 60 : 0,
           borderWidth: focused ? 2 : 0,
           elevation: focused ? 2 : 0,
         }

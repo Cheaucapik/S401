@@ -44,7 +44,7 @@ const RootNavigator = () => {
         tabBarLabel: ({focused}) => <Text style={styles.text}>{focused ? "Formations" : ""}</Text>,
         tabBarIcon: ({focused}) => (
         <PastilleActive focused={focused}>
-           <FormationIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 50 : 30} />
+           <FormationIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
         </PastilleActive>
         )
       }}
@@ -65,7 +65,7 @@ const RootNavigator = () => {
         tabBarLabel: ({focused}) => <Text style={styles.text}>{focused ? "Home" : ""}</Text>,
         tabBarIcon: ({focused}) => (
         <PastilleActive focused={focused}>
-          <HomeIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 50 : 30} />
+          <HomeIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
         </PastilleActive>)
       }} />
 
@@ -75,7 +75,7 @@ const RootNavigator = () => {
         tabBarLabel: ({focused}) => <Text style={styles.text}>{focused ? "Settings" : ""}</Text>,
         tabBarIcon: ({focused}) => (
         <PastilleActive focused={focused}>
-          <SettingsIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 50 : 30} />
+          <SettingsIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
         </PastilleActive>
         ),
         tabBarButton: (props) => {
