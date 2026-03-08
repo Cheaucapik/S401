@@ -1,12 +1,14 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import RootNavigator from './navigation/RootNavigator';
+import AppNavigator from './navigation/AppNavigator';
+import { StatusBar } from 'react-native';
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <RootNavigator />
-    </NavigationContainer>
+  <>
+    <StatusBar barStyle="dark-content" backgroundColor="transparent" />
+    <AppNavigator />
+  </>
   );
 };
 

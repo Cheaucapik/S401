@@ -7,4 +7,7 @@ export const Colors = {
   red: '#EB8181',
   light_blue : '#E8E7FE',
   purple : '#846EE1',
+  light_pink: '#DDBEF2',
+  gray: '#757575',
+  dark_purple : '#6750A4',
 };

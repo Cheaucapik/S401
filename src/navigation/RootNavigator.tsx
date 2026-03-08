@@ -29,7 +29,7 @@ const RootNavigator = () => {
          }
       }}
     >
-      <Tab.Screen name="Formations" 
+      <Tab.Screen name="FormationsListe" 
       component={Formations}
       options={{
         tabBarButton: (props) => {
