@@ -5,4 +5,6 @@ export const Colors = {
   black: '#000000',
   axe_color_blue: '#7CABE9',
   red: '#EB8181',
+  light_blue : '#E8E7FE',
+  purple : '#846EE1',
 };

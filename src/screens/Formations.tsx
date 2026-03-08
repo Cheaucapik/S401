@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { Colors } from '../constants/Colors';
 import PetitRondRouge from '../components/Absent';
 
-// 1. Petite fonction pour un élément de liste
 const InfoFormation = ({titre, numero} :{ titre : string, numero : number }) => (
   <View style={styles.details}>
     <Text style={styles.cardText}>{titre}</Text>
