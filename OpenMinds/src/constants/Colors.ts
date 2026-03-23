@@ -10,4 +10,6 @@ export const Colors = {
   light_pink: '#DDBEF2',
   gray: '#757575',
   dark_purple : '#6750A4',
+  green: '#84EB81',
+  grey : '#9F9A9A',
 };

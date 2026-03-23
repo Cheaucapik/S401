@@ -2,10 +2,10 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Colors } from '../constants/Colors';
 
-const PetitRondRouge = () => {
+const PetitRond = ({color, height, width} : { color: string, height?: number, width?: number }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.rondRouge} />
+      <View style={[styles.rondRouge, {backgroundColor: color, height: height, width: width }]} />
     </View>
   );
 };
@@ -18,11 +18,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   rondRouge: {
-    width: 20,
-    height: 20,
-    backgroundColor: Colors.red,
     borderRadius: 15,
+    height: 20,
+    width: 20,
   },
 });
 
-export default PetitRondRouge;
+export default PetitRond;

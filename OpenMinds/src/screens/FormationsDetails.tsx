@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { Colors } from '../constants/Colors';
-import PetitRondRouge from '../components/Absent';
+import PetitRondRouge from '../components/Rond';
 
 const InfoFormation = ({titre, numero} :{ titre : string, numero : number }) => (
   <View style={styles.details}>
@@ -9,7 +9,7 @@ const InfoFormation = ({titre, numero} :{ titre : string, numero : number }) => 
     <View style={styles.details1}>
         <Text style={styles.numero}>{numero}/5</Text>
         <View style={styles.presentiel}>
-            <PetitRondRouge/>
+            <PetitRondRouge color={Colors.red}/>
             <Text style={styles.presentielText}>Présentiel</Text>
         </View>
     </View>
