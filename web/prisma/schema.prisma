@@ -7,12 +7,32 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Formation {
-  id          Int   @id @default(autoincrement())
-  title       String
+model Thematique {
+  id_thematique Int @id @default(autoincrement())
+  title         String
   color       String
   colorTitle  String
-  status      String
+  formations Formation[]
+}
+
+model Formation {
+  id_formation Int   @id @default(autoincrement())
+  title       String
   duration    String
   presentiel  Boolean
+  description String
+  numero      Int
+  thematique   Thematique @relation(fields: [thematiqueId], references: [id_thematique])
+  thematiqueId Int
+  image String
+}
+
+model Utilisateur {
+  id_utilisateur  Int  @id @default(autoincrement())
+  nom             String
+  prenom          String
+  email           String @unique
+  password        String
+  date_naissance  DateTime
+  type_utilisateur String     @default("BENEVOLE")
 }

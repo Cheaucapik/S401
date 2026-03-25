@@ -17,6 +17,7 @@ const RootNavigator = () => {
 
   return (
     <Tab.Navigator
+      initialRouteName='Home'
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.purple,

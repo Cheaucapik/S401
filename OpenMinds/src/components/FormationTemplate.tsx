@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Colors } from '../constants/Colors';
 import PetitRond from './Rond';
+import { useNavigation } from '@react-navigation/native';
 
 
 interface FormationProps {
@@ -9,19 +10,24 @@ interface FormationProps {
     colorTitle: string;
     title: string;
     duration: string;
-    status: string;
+    numero: number;
     presentiel: boolean;
+    total : number;
+    image : string;
+    id : number;
+    axe_title : string;
 }
 
-const FormationTemplate = ({color, colorTitle, title, duration, status, presentiel} : FormationProps) => {
-  return (
+const FormationTemplate = ({color, colorTitle, title, duration, numero, presentiel, total, image, id, axe_title} : FormationProps) => {
+    const navigation = useNavigation<any>();
+    return (
     <View style={[style.container, { backgroundColor: color}]}>
-        <Image source={require('../assets/AidePersonnes.png')} style={style.imageContainer} />
+        <Image source={{ uri: image }} style={style.imageContainer} />
         <View style={style.textContainer}>
-            <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 12, fontWeight: 'bold', color: 'white', backgroundColor: colorTitle, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>{title}</Text>
-            <Text style={{ fontSize: 12, color: Colors.grey }}>Résumé de la formation</Text>
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 12, fontWeight: 'bold', color: 'white', backgroundColor: colorTitle, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20, textAlign: 'center' }}>{title}</Text>
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 12, color: Colors.grey }}>{axe_title}</Text>
             <View style={style.detailContainer}>
-                <Text style={{ fontSize: 12, color: 'black'}}>Durée : {duration}</Text>
+                <Text style={{ fontSize: 12, color: 'black'}}>Durée : {duration}h</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
                     <Text style={{ fontSize: 12, color: 'black'}}>{presentiel ? 'Présentiel' : 'À distance'}</Text>
                     <PetitRond color={presentiel ? Colors.green : Colors.red} height={15} width={15} />
@@ -29,8 +35,10 @@ const FormationTemplate = ({color, colorTitle, title, duration, status, presenti
             </View>
         </View>
         <View style={style.detail2Container}>
-            <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: colorTitle, paddingHorizontal : 8, paddingVertical : 2, borderRadius : 10 }}>{status}</Text>
-            <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>Rejoindre</Text>
+            <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: colorTitle, paddingHorizontal : 8, paddingVertical : 2, borderRadius : 10 }}>{numero}/{total}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Formations', { colorTitle, title, duration, numero, presentiel, total, image, id})}>
+                <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>Rejoindre</Text>
+            </TouchableOpacity>
         </View>
     </View>
   )
@@ -43,13 +51,16 @@ const style = StyleSheet.create({
         gap: 15,
         padding: 15,
         borderRadius: 15,
-        margin : 20,
+        marginHorizontal : 20,
+        marginVertical : 10,
         maxHeight: 100,
+        elevation: 5,
     },
     imageContainer: {
         width: 80,
         height: 80,
-        borderRadius: 40
+        borderRadius: 40,
+        backgroundColor: Colors.grey,
     },
     textContainer: {
         flexDirection: 'column',

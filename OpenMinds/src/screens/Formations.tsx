@@ -8,23 +8,12 @@ import MascotteFormat from '../components/MascotteForma'
 import Account from '../components/Account'
 import FormationTemplate from '../components/FormationTemplate'
 
-interface Formation {
-  id: string;
-  title: string;
-  color: string;
-  colorTitle: string;
-  status: string;
-  duration: string;
-  presentiel: boolean;
-}
-
 const Formations = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
-    const [formations, setFormations] = useState<Formation[]>([]);
-    const [filteredData, setFilteredData] = useState<Formation[]>([]);
+    const [formations, setFormations] = useState<any[]>([]);
+    const [filteredData, setFilteredData] = useState<any[]>([]);
     const chargerFormations = async () => {
-  // REMPLACE PAR TON IP LOCALE (ex: http://192.168.1.XX:3000/api/formations)
         const response = await fetch('http://192.168.1.147:3000/api/formations');
         const data = await response.json();
         setFormations(data);
@@ -42,7 +31,7 @@ const Formations = ({navigation}:any) => {
 
     return (
         <View style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+            <View>
                 <LinearGradient style={styles.container}
                     colors={[Colors.purple, Colors.light_pink]} 
                     start={{ x: 0, y: 0 }} 
@@ -72,9 +61,9 @@ const Formations = ({navigation}:any) => {
             <View style={{ flex: 3 }}>
                 {searchQuery !== '' ? (<FlatList
                 data={filteredData}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id_formation.toString()}
                 renderItem={({ item } : { item: any }) => (
-                    <FormationTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.duration} status={item.status} presentiel={item.presentiel} />
+                    <FormationTemplate color={item.thematique.color} colorTitle={item.thematique.colorTitle} title={item.title} duration={item.duration} numero={item.numero} presentiel={item.presentiel} total={item.thematique._count.formations} axe_title={item.thematique.title} image={item.image} id={item.id_formation} />
                 )}
 
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -103,6 +92,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 30,
         borderBottomLeftRadius: 30,
         paddingBottom: 10,
+        marginBottom: 10,
     },
     title: { fontSize: 40, fontWeight: 'bold', color: Colors.white },
     searchSection: {
