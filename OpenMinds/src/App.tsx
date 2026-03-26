@@ -3,8 +3,10 @@ import AppNavigator from './navigation/AppNavigator';
 import { StatusBar } from 'react-native';
 import { useEffect } from 'react'
 import BootSplash from "react-native-bootsplash";
+import Login from "./screens/Login";
 
 const App = () => {
+  let isLogged = false;
   useEffect(() => {
   const init = async () => {
     await BootSplash.hide({ fade: true }); 
@@ -13,11 +15,12 @@ const App = () => {
   init();
 }, []);
   return (
+  isLogged ? (
   <>
     <StatusBar barStyle="dark-content" backgroundColor="transparent" />
     <AppNavigator />
   </>
-  );
+  ): (<Login/>))
 };
 
 export default App;

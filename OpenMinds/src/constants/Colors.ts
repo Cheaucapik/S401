@@ -12,4 +12,7 @@ export const Colors = {
   dark_purple : '#6750A4',
   green: '#84EB81',
   grey : '#9F9A9A',
+  pink : '#C87CE9',
+  font : '#4D4186',
+  off_white : '#FFFCFC'
 };
