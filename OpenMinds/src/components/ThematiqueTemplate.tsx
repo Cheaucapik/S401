@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Colors } from '../constants/Colors';
-import PetitRond from './Rond';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -10,31 +9,28 @@ interface FormationProps {
     colorTitle: string;
     title: string;
     duration: string;
-    numero: number;
-    presentiel: boolean;
+    progression: number;
     total : number;
     image : string;
-    id : number;
+    id_thematique : number;
+    description : string;
 }
 
-const FormationTemplate = ({color, colorTitle, title, duration, numero, presentiel, total, image, id} : FormationProps) => {
+const ThematiqueTemplate = ({color, colorTitle, title, duration, progression, total, image, id_thematique, description} : FormationProps) => {
     const navigation = useNavigation<any>();
     return (
     <View style={[style.container, { backgroundColor: color}]}>
         <Image source={{ uri: image }} style={style.imageContainer} />
         <View style={style.textContainer}>
             <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 12, fontWeight: 'bold', color: 'white', backgroundColor: colorTitle, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20, textAlign: 'center' }}>{title}</Text>
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 12, color: Colors.grey }}>{description}</Text>
             <View style={style.detailContainer}>
                 <Text style={{ fontSize: 12, color: 'black'}}>Durée : {duration}h</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
-                    <Text style={{ fontSize: 12, color: 'black'}}>{presentiel ? 'Présentiel' : 'À distance'}</Text>
-                    <PetitRond color={presentiel ? Colors.green : Colors.red} height={15} width={15} />
-                </View>
             </View>
         </View>
         <View style={style.detail2Container}>
-            <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: colorTitle, paddingHorizontal : 8, paddingVertical : 2, borderRadius : 10 }}>{numero}/{total}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('FormationsDetails', { colorTitle, title, duration, numero, presentiel, total, image, id})}>
+            <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: colorTitle, paddingHorizontal : 8, paddingVertical : 2, borderRadius : 10 }}>{progression}/{total}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Formations', {color, colorTitle, title, total, id : id_thematique, description})}>
                 <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>Rejoindre</Text>
             </TouchableOpacity>
         </View>
@@ -61,10 +57,7 @@ const style = StyleSheet.create({
         backgroundColor: Colors.grey,
     },
     textContainer: {
-        height: 80,
-        paddingVertical : 5,
         flexDirection: 'column',
-        justifyContent : 'space-between',
         gap: 5,
         width: 160,
     },
@@ -83,4 +76,4 @@ const style = StyleSheet.create({
 })
 
 
-export default FormationTemplate
+export default ThematiqueTemplate

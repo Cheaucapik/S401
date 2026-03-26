@@ -4,11 +4,11 @@ import { LinearGradient } from 'react-native-linear-gradient'
 import { Colors } from '../constants/Colors'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Loupe from '../components/Loupe'
-import MascotteExplorer from '../components/MascotteExplorer'
+import MascotteFormat from '../components/MascotteForma'
 import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 
-const Home = ({navigation}:any) => {
+const Thematiques = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
@@ -38,12 +38,12 @@ const Home = ({navigation}:any) => {
                     end={{ x: 0, y: 1 }}
                     >
                     <View style={[{ marginTop: insets.top, marginBottom : 20 }, styles.header]}>
-                        <Text style={styles.title}>Explorer</Text>
+                        <Text style={styles.title}>Thématiques</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                             <Account />
                         </TouchableOpacity>
                     </View>
-                    <MascotteExplorer style={styles.mascotte} />
+                    <MascotteFormat style={styles.mascotte} />
                     <View style={styles.searchSection}>
                         <Loupe />
                         <TextInput
@@ -77,14 +77,9 @@ const Home = ({navigation}:any) => {
                 persistentScrollbar={true}
                 bounces={true}
             />) : (
-              <>
                 <View>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Ma progression</Text>
+                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Continuer...</Text>
                 </View>
-                <View>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Mon Calendrier</Text>
-                </View>
-              </>
             )}
             
             </View>
@@ -137,4 +132,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default Home
+export default Thematiques

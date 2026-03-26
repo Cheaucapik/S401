@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import RootNavigator from './RootNavigator';
 import FormationsDetails from '../screens/FormationsDetails';
 import Settings from '../screens/Settings';
+import Formations from '../screens/Formations'
 import { Colors } from '../constants/Colors';
 
 const Stack = createNativeStackNavigator();
@@ -12,8 +13,18 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={RootNavigator} />
-        <Stack.Screen name="Formations" component={FormationsDetails}
+        <Stack.Screen name="Formations" component={Formations} 
         options={{
+            headerShown: true,
+            headerTitle : "Axes",
+            headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
+            headerTintColor: Colors.primary_blue,
+            headerShadowVisible: false,
+            headerTitleAlign: 'center',
+        }}/>
+        <Stack.Screen name="FormationsDetails" component={FormationsDetails}
+        options={{
+            headerTitle: "Formations",
             headerShown: true,
             headerTitleAlign: 'center',
             headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},

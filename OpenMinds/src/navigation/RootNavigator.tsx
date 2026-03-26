@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Formations from '../screens/Formations';
 import Home from '../screens/Home';
 import Settings from '../screens/Settings'; 
 import {Colors} from '../constants/Colors';
@@ -9,6 +8,7 @@ import FormationIcon from '../components/FormationIcon';
 import SettingsIcon from '../components/SettingsIcon';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import PastilleActive from '../components/PastilleActive';
+import Thematiques from '../screens/Thematiques';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,7 +31,7 @@ const RootNavigator = () => {
       }}
     >
       <Tab.Screen name="FormationsListe" 
-      component={Formations}
+      component={Thematiques}
       options={{
         tabBarButton: (props) => {
           const { ref, ...rest } = props;

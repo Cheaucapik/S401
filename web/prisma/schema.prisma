@@ -10,21 +10,41 @@ generator client {
 model Thematique {
   id_thematique Int @id @default(autoincrement())
   title         String
-  color       String
-  colorTitle  String
+  color       String @default("#E8E7FE")
+  colorTitle  String @default("#846EE1")
   formations Formation[]
+  description String
+  image String
 }
 
 model Formation {
   id_formation Int   @id @default(autoincrement())
   title       String
-  duration    String
+  duration    Int
   presentiel  Boolean
   description String
   numero      Int
   thematique   Thematique @relation(fields: [thematiqueId], references: [id_thematique])
   thematiqueId Int
   image String
+
+  sessions     Session[]
+}
+
+model Session {
+  id_session Int @id @default(autoincrement())
+  date_deb DateTime
+  date_fin DateTime
+  presentiel Boolean
+  lieu String
+
+  formation Formation @relation(fields : [idFormation], references: [id_formation]) 
+  idFormation Int
+
+  formateur Formateur @relation(fields : [idFormateur], references : [id_formateur])
+  idFormateur Int
+
+  suivis      Suivi[]
 }
 
 model Utilisateur {
@@ -35,4 +55,39 @@ model Utilisateur {
   password        String
   date_naissance  DateTime
   type_utilisateur String     @default("BENEVOLE")
+
+  benevole Benevole?
+  administrateur Administrateur?
+  formateur Formateur?
+}
+
+model Benevole {
+  id_benevole     Int         @id
+  utilisateur     Utilisateur @relation(fields: [id_benevole], references: [id_utilisateur])
+
+  suivis Suivi[]
+}
+
+model Formateur {
+  id_formateur     Int         @id
+  utilisateur     Utilisateur @relation(fields: [id_formateur], references: [id_utilisateur])
+
+  sessions       Session[]
+}
+
+model Administrateur {
+  id_administrateur     Int         @id
+  utilisateur     Utilisateur @relation(fields: [id_administrateur], references: [id_utilisateur])
+}
+
+model Suivi {
+  statut Boolean
+
+  benevole Benevole @relation(fields: [idBenevole], references: [id_benevole])
+  idBenevole Int
+
+  session Session @relation(fields : [idSession], references: [id_session])
+  idSession Int
+
+  @@id([idBenevole, idSession])
 }

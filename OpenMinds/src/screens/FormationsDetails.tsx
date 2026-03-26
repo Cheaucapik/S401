@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { Colors } from '../constants/Colors';
 import Rond from '../components/Rond';
 import { useRoute } from '@react-navigation/native';
@@ -28,18 +28,19 @@ interface FormationDetailsProps {
   colorTitle: string;
   total : number;
   id : number;
+  id_formation : string;
 }
 
 
 const FormationsDetails = () => {
 
   const route = useRoute();
-  const { colorTitle, title, duration, numero, presentiel, total, image, id} = (route.params as FormationDetailsProps) || {};
+  const { colorTitle, title, duration, numero, presentiel, total, image, id, id_formation} = (route.params as FormationDetailsProps) || {};
 
   const [formation, setFormation] = useState<any>(null)
 
   const chargerFormation = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/formations?id=' + id);
+        const response = await fetch('http://192.168.1.147:3000/api/formations?idForma=' + id);
         const data = await response.json();
         setFormation(data[0]);
     };
@@ -60,7 +61,7 @@ const FormationsDetails = () => {
         {formation ? (
         <Markdown style={markdownStyles}>
           {formation.description}
-        </Markdown> ) : (<Text style={{ textAlign: 'center', marginTop: 20 }}>Chargement du programme...</Text>)}
+        </Markdown> ) : (<ActivityIndicator size="large"/>)}
       </View>
       <TouchableOpacity style={{ marginTop: 20, borderRadius: 30, alignItems: 'center'}}>
         <Text style={{ color: 'white', fontSize: 30, fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 10, borderRadius: 30, paddingHorizontal: 40 }}>Rejoindre</Text>

@@ -14,7 +14,7 @@ export async function GET(request : Request) {
       whereClause = { thematiqueId: parseInt(themaId) };
     }
     
-    const formations = await prisma.formation.findMany({
+    const formations = await prisma.suivi.findMany({
     where: whereClause,
   });
   console.log("Formations récupérées:", formations);
