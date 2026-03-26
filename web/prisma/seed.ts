@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcrypt';
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -83,12 +85,14 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
     },
   })
 
+  const hashedPassword = await bcrypt.hash("1234", 10);
+
   const oceane = await prisma.utilisateur.create({
   data:{
     nom: "Huynh",
     prenom : "Océane",
     email : "oceane@test.com",
-    password : "1234",
+    password : hashedPassword,
     date_naissance : new Date("2006-11-07"),
     benevole: {
       create: {}
@@ -101,12 +105,14 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
       nom: "Dupont",
       prenom: "Jean",
       email: "jean@formateur.com",
-      password: "1234",
+      password: hashedPassword,
       date_naissance: new Date("1985-01-01"),
       type_utilisateur: "FORMATEUR",
       formateur: { create: {} }
     }
   });
+
+  const hashedPassword2 = await bcrypt.hash("admin", 10);
 
   // L'Administrateur
   const bossAdmin = await prisma.utilisateur.create({
@@ -114,7 +120,7 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
       nom: "Admin",
       prenom: "Le Boss",
       email: "admin@system.com",
-      password: "root",
+      password: hashedPassword2,
       date_naissance: new Date("1990-01-01"),
       type_utilisateur: "ADMIN",
       administrateur: { create: {} }

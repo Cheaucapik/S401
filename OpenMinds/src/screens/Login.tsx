@@ -8,7 +8,34 @@ import {useState} from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const Login = () => {
+    const [email, setEmail] = useState('');
+    const [mdp, setMdp] = useState('');
+    const [eye, setEye] = useState(false);
+
     const [rememberMe, setRememberMe] = useState(false);
+
+    const handleLogin = async () => {
+        console.log("BOUTON CLIQUÉ !");
+        try{
+            const response = await fetch("http://192.168.1.147:3000/api/login", {
+                method : 'POST',
+                headers : {
+                    'Content-Type': 'application/json',
+                },
+                body : JSON.stringify({
+                    email : email,
+                    password : mdp,
+                }),
+            });
+
+            const data = await response.json();
+            console.log("Réponse du serveur :", data);
+        }
+        catch(error){
+            console.log(error);
+        }
+    }
+
     return (
     <LinearGradient  style={styles.container}
                         colors={[Colors.pink, Colors.purple]} 
@@ -27,6 +54,7 @@ const Login = () => {
                                 autoCapitalize='none'
                                 placeholder="Email"
                                 autoCorrect={false}
+                                onChangeText={(email) => setEmail(email)}
                             />
                 </View>
 
@@ -37,7 +65,12 @@ const Login = () => {
                                 autoCapitalize='none'
                                 placeholder="Mot de passe"
                                 autoCorrect={false}
+                                secureTextEntry={!eye}
+                                onChangeText={(mdp) => setMdp(mdp)}
                             />
+                            <TouchableOpacity activeOpacity={1} onPress={() => setEye(!eye)}>
+                                <Icon name={eye ? "eye-outline" : "eye-off-outline"} color={Colors.font} size={24}/>
+                            </TouchableOpacity>
                 </View>
             </View>
 
@@ -58,7 +91,9 @@ const Login = () => {
                 </TouchableOpacity>
             </View>
 
-            <Text style={styles.connect}>Connectez-vous</Text>
+            <TouchableOpacity activeOpacity={1} onPress={() => handleLogin()}>
+                <Text style={styles.connect}>Connectez-vous</Text>
+            </TouchableOpacity>
             <View style={{flexDirection: "row", gap : 10, justifyContent : "center"}}>
                 <Text style={{color : Colors.grey}}>Vous n'avez pas de compte ?</Text>
                 <Text style={{fontWeight : "bold", color : Colors.font}}>Inscrivez-vous</Text>
