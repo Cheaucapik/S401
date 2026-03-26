@@ -6,7 +6,7 @@ import BootSplash from "react-native-bootsplash";
 import Login from "./screens/Login";
 
 const App = () => {
-  let isLogged = false;
+  let isLogged = true;
   useEffect(() => {
   const init = async () => {
     await BootSplash.hide({ fade: true }); 

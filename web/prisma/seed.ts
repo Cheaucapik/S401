@@ -4,11 +4,12 @@ const prisma = new PrismaClient()
 async function main() {
   await prisma.suivi.deleteMany();
   await prisma.session.deleteMany();
-  await prisma.formation.deleteMany();
-  await prisma.thematique.deleteMany();
   await prisma.benevole.deleteMany();
   await prisma.formateur.deleteMany();
+  await prisma.administrateur.deleteMany();
   await prisma.utilisateur.deleteMany();
+  await prisma.formation.deleteMany();
+  await prisma.thematique.deleteMany();
 
   const tables = [
     'Thematique', 'Formation', 'Session', 
