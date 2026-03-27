@@ -4,10 +4,30 @@ import { Colors } from '../constants/Colors'
 import LinearGradient from 'react-native-linear-gradient'
 import ArrowLeft from '../components/ArrowLeft'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {useAuth} from '../context/AuthContext'
 
 const Settings = ({ navigation }:any) => {
   const insets = useSafeAreaInsets();
+
+  const {setUserToken} = useAuth();
+
+  const logout = async () => {
+    try{
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userData');
+
+      setUserToken(null);
+
+      console.log("Déconnexion réussie");
+    }
+    catch(error){
+      console.error("Erreur : "+ error)
+    }
+  }
+
   return (
+    <>
     <LinearGradient style={styles.container}
                 colors={[Colors.purple, Colors.light_pink]} 
                 start={{ x: 0, y: 0 }} 
@@ -26,6 +46,10 @@ const Settings = ({ navigation }:any) => {
         </View>
       </View>
     </LinearGradient>
+    <TouchableOpacity activeOpacity={1} onPress={() => logout()}>
+      <Text>Se déconnecter</Text>
+    </TouchableOpacity>
+    </>
   )
 }
 

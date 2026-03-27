@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken'
 
 export async function POST(request: Request) {
     try {
@@ -8,7 +9,7 @@ export async function POST(request: Request) {
         const { email, password } = body;
 
         const user = await prisma.utilisateur.findUnique({
-            where: { email: email }
+            where: { email: email.toLowerCase() }
         });
 
         if (!user) {
@@ -21,8 +22,22 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
         }
 
-        const { password: _, ...userWithoutPassword } = user;
-        return NextResponse.json(userWithoutPassword);
+        const token = jwt.sign(
+            { userId: user.id_utilisateur, email: user.email },
+            process.env.NEXTAUTH_SECRET!, 
+            { expiresIn: '24h' }
+        );
+
+        return NextResponse.json({
+            message: "Connexion réussie",
+            token: token,
+            user: {
+                id: user.id_utilisateur,
+                nom: user.nom,
+                prenom: user.prenom,
+                type: user.type_utilisateur
+            }
+        });
 
     } catch (error) {
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

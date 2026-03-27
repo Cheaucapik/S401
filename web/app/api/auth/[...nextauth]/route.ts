@@ -1,7 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
 import prisma from "@/lib/prisma";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 
 export const authOptions = {
     session: {

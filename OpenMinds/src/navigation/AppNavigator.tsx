@@ -5,14 +5,23 @@ import FormationsDetails from '../screens/FormationsDetails';
 import Settings from '../screens/Settings';
 import Formations from '../screens/Formations'
 import { Colors } from '../constants/Colors';
+import { ActivityIndicator } from 'react-native';
+import Login from '../screens/Login'
+import { useAuth } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
+
+  const { userToken, isLoading } = useAuth();
+
+  if (isLoading) return <ActivityIndicator size="large"/>;
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainTabs" component={RootNavigator} />
+        {userToken === null ? 
+        <Stack.Screen name="Login" component={Login} /> : <Stack.Screen name="MainTabs" component={RootNavigator} />}
         <Stack.Screen name="Formations" component={Formations} 
         options={{
             headerShown: true,

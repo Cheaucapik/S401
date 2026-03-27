@@ -6,16 +6,18 @@ import Email from '../components/Email'
 import Lock from '../components/Lock'
 import {useState} from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAuth} from '../context/AuthContext'
 
 const Login = () => {
+    const { setUserToken } = useAuth();
+
     const [email, setEmail] = useState('');
     const [mdp, setMdp] = useState('');
     const [eye, setEye] = useState(false);
-
     const [rememberMe, setRememberMe] = useState(false);
 
     const handleLogin = async () => {
-        console.log("BOUTON CLIQUÉ !");
         try{
             const response = await fetch("http://192.168.1.147:3000/api/login", {
                 method : 'POST',
@@ -23,13 +25,23 @@ const Login = () => {
                     'Content-Type': 'application/json',
                 },
                 body : JSON.stringify({
-                    email : email,
+                    email : email.trim(),
                     password : mdp,
                 }),
             });
 
             const data = await response.json();
-            console.log("Réponse du serveur :", data);
+            if(response.ok && data.token){
+                console.log("Réponse du serveur :", data);
+
+                await AsyncStorage.setItem('userToken', data.token);
+                await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+
+                setUserToken(data.token);
+
+                console.log("Connexion réussie")
+            }
+            else console.log("Erreur", data.error);
         }
         catch(error){
             console.log(error);
