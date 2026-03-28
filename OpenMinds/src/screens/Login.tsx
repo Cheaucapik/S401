@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../context/AuthContext'
 
-const Login = () => {
+const Login = ({navigation} : any) => {
     const { setUserToken } = useAuth();
 
     const [email, setEmail] = useState('');
@@ -34,8 +34,10 @@ const Login = () => {
             if(response.ok && data.token){
                 console.log("Réponse du serveur :", data);
 
-                await AsyncStorage.setItem('userToken', data.token);
-                await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+                if(rememberMe){
+                    await AsyncStorage.setItem('userToken', data.token);
+                    await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+                }
 
                 setUserToken(data.token);
 
@@ -66,6 +68,7 @@ const Login = () => {
                                 autoCapitalize='none'
                                 placeholder="Email"
                                 autoCorrect={false}
+                                keyboardType="email-address"
                                 onChangeText={(email) => setEmail(email)}
                             />
                 </View>
@@ -108,7 +111,9 @@ const Login = () => {
             </TouchableOpacity>
             <View style={{flexDirection: "row", gap : 10, justifyContent : "center"}}>
                 <Text style={{color : Colors.grey}}>Vous n'avez pas de compte ?</Text>
-                <Text style={{fontWeight : "bold", color : Colors.font}}>Inscrivez-vous</Text>
+                <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate('Signup')}>
+                    <Text style={{fontWeight : "bold", color : Colors.font}}>Inscrivez-vous</Text>
+                </TouchableOpacity>
             </View>
         </View>
     </LinearGradient>

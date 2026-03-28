@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import React, { useEffect } from 'react'
 import { Colors } from '../constants/Colors'
 import LinearGradient from 'react-native-linear-gradient'
 import ArrowLeft from '../components/ArrowLeft'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useAuth} from '../context/AuthContext'
+import Logout from '../components/Logout'
 
 const Settings = ({ navigation }:any) => {
   const insets = useSafeAreaInsets();
@@ -14,17 +15,34 @@ const Settings = ({ navigation }:any) => {
 
   const logout = async () => {
     try{
-      await AsyncStorage.removeItem('userToken');
-      await AsyncStorage.removeItem('userData');
-
+        await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('userData');
+      }
+      catch(error){
+        console.error("Erreur lors de la suppression des données de l'utilisateur :", error);
+    }
+    finally{
       setUserToken(null);
 
       console.log("Déconnexion réussie");
     }
-    catch(error){
-      console.error("Erreur : "+ error)
-    }
   }
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('userData');
+        if (userData) {
+          const user = JSON.parse(userData);
+          console.log("Données de l'utilisateur :", user);
+          return user;
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des données de l'utilisateur :", error);
+      }
+    };
+    loadUserData();
+    }, []);
 
   return (
     <>
@@ -45,19 +63,29 @@ const Settings = ({ navigation }:any) => {
           <Text style={styles.title}>Profile</Text>
         </View>
       </View>
+
+      <View style={{alignSelf : 'center', marginTop : 10, padding : 60, borderRadius : 100, backgroundColor : Colors.grey}} >
+        <Image/>
+      </View>
+      <Text style={{color : Colors.white, fontSize : 25, textAlign: 'center', fontWeight: 'bold', marginTop: 10}}>Nom Prénom</Text>
+      <Text style={{color : Colors.grey, fontSize : 16, textAlign: 'center'}}>nom.prenom@mail.com</Text>
     </LinearGradient>
-    <TouchableOpacity activeOpacity={1} onPress={() => logout()}>
-      <Text>Se déconnecter</Text>
-    </TouchableOpacity>
+
+    <View style={{flex: 1, backgroundColor: Colors.white, padding: 20, justifyContent: 'flex-end'}}>
+      <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom : 40}} activeOpacity={1} onPress={() => logout()}>
+        <Logout/>
+        <Text style={{color: Colors.primary_blue, fontSize: 16, fontWeight: 'bold', marginLeft: 10}}>Se déconnecter</Text>
+      </TouchableOpacity>
+    </View>
     </>
   )
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, 
-        maxHeight: 225,
+    container: {
         borderBottomRightRadius: 30,
         borderBottomLeftRadius: 30,
+        paddingBottom: 20,
     },
     title: { fontSize: 30, fontWeight: 'bold', color: Colors.white, marginLeft: 20, alignItems: 'center'},
     header : {

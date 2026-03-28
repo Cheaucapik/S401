@@ -8,6 +8,7 @@ import { Colors } from '../constants/Colors';
 import { ActivityIndicator } from 'react-native';
 import Login from '../screens/Login'
 import { useAuth } from '../context/AuthContext';
+import Signup from '../screens/Signup';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +22,12 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {userToken === null ? 
-        <Stack.Screen name="Login" component={Login} /> : <Stack.Screen name="MainTabs" component={RootNavigator} />}
+        (<>
+          <Stack.Screen name="Login" component={Login} /> 
+          <Stack.Screen name="Signup" component={Signup} />
+        </>) : 
+        (<>
+        <Stack.Screen name="MainTabs" component={RootNavigator} />
         <Stack.Screen name="Formations" component={Formations} 
         options={{
             headerShown: true,
@@ -40,6 +46,7 @@ const AppNavigator = () => {
             headerTintColor: Colors.primary_blue,
             headerShadowVisible: false,}} />
         <Stack.Screen name="Profile" component={Settings}/>
+        </>)}
       </Stack.Navigator>
       </NavigationContainer>
   );

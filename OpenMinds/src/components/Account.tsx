@@ -2,11 +2,11 @@ import * as React from "react"
 import Svg, { Circle, Path } from "react-native-svg"
 import { Colors } from "../constants/Colors"
 
-function SvgComponent() {
+function SvgComponent({width = 60, height = 60} : {width?: number, height?: number}) {
   return (
     <Svg
-      width={60}
-      height={60}
+      width={width}
+      height={height}
       viewBox="0 0 60 60"
       fill="none"
     >

@@ -12,6 +12,11 @@ export async function POST(request: Request) {
             where: { email: email.toLowerCase() }
         });
 
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!regexEmail.test(email)) {
+            return NextResponse.json({ error: "Email invalide" }, { status: 400 });
+        }
+
         if (!user) {
             return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 401 });
         }
