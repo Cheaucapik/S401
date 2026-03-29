@@ -7,16 +7,27 @@ import Loupe from '../components/Loupe'
 import MascotteFormat from '../components/MascotteForma'
 import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
+import { ENDPOINTS } from '../config/api'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Thematiques = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
+
     const chargerThematiques = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/thematiques');
-        const data = await response.json();
-        setFormations(data);
+        const jsonValue = await AsyncStorage.getItem('userData');
+        const user = jsonValue != null ? JSON.parse(jsonValue) : null;
+
+        const [responseThema, responseSuivi] = await Promise.all([
+            fetch(`${ENDPOINTS.THEMATIQUES}`),
+            fetch(`${ENDPOINTS.SUIVI}?id=${user?.id}`)
+        ]);
+        const dataThema = await responseThema.json();
+        const dataSuivi = await responseSuivi.json();
+
+        setFormations(dataThema);
     };
 
     useEffect(() => {

@@ -8,6 +8,7 @@ import {useState} from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../context/AuthContext'
+import { ENDPOINTS } from '../config/api';
 
 const Login = ({navigation} : any) => {
     const { setUserToken } = useAuth();
@@ -19,7 +20,7 @@ const Login = ({navigation} : any) => {
 
     const handleLogin = async () => {
         try{
-            const response = await fetch("http://192.168.1.147:3000/api/login", {
+            const response = await fetch(`${ENDPOINTS.LOGIN}`, {
                 method : 'POST',
                 headers : {
                     'Content-Type': 'application/json',

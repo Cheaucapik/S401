@@ -12,6 +12,7 @@ import Account  from '../components/Account'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ArrowLeft from '../components/ArrowLeft'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { ENDPOINTS } from '../config/api';
 
 LogBox.ignoreLogs(['@react-native-community/datetimepicker']);
 
@@ -29,7 +30,7 @@ const Signup = ({navigation} : any) => {
 
     const handleSignUp = async () => {
         try{
-            const response = await fetch("http://192.168.1.147:3000/api/signup", {
+            const response = await fetch(`${ENDPOINTS.SIGNUP}`, {
                 method : 'POST',
                 headers : {
                     'Content-Type': 'application/json',

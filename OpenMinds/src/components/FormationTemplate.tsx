@@ -3,7 +3,7 @@ import React from 'react'
 import { Colors } from '../constants/Colors';
 import PetitRond from './Rond';
 import { useNavigation } from '@react-navigation/native';
-
+import { Alert } from 'react-native';
 
 interface FormationProps {
     color: string;
@@ -15,10 +15,16 @@ interface FormationProps {
     total : number;
     image : string;
     id : number;
+    fait : boolean;
 }
 
-const FormationTemplate = ({color, colorTitle, title, duration, numero, presentiel, total, image, id} : FormationProps) => {
+const FormationTemplate = ({color, colorTitle, title, duration, numero, presentiel, total, image, id, fait} : FormationProps) => {
     const navigation = useNavigation<any>();
+    const handlePres = () => {
+        if(fait) Alert.alert("Formation déjà suivie", "Vous avez déjà suivi cette formation.");
+        else navigation.navigate('FormationsDetails', {color, colorTitle, title, duration, numero, presentiel, total, image, id});
+    }
+
     return (
     <View style={[style.container, { backgroundColor: color}]}>
         <Image source={{ uri: image }} style={style.imageContainer} />
@@ -34,8 +40,8 @@ const FormationTemplate = ({color, colorTitle, title, duration, numero, presenti
         </View>
         <View style={style.detail2Container}>
             <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: colorTitle, paddingHorizontal : 8, paddingVertical : 2, borderRadius : 10 }}>{numero}/{total}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('FormationsDetails', { colorTitle, title, duration, numero, presentiel, total, image, id})}>
-                <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>Rejoindre</Text>
+            <TouchableOpacity onPress={handlePres}>
+                <Text style={[style.btnRejoindre, fait ? { backgroundColor: Colors.gray } : { backgroundColor: Colors.primary_blue }]}>Rejoindre</Text>
             </TouchableOpacity>
         </View>
     </View>
@@ -79,6 +85,14 @@ const style = StyleSheet.create({
         gap: 5,
         height: "100%",
     },
+    btnRejoindre : {
+        fontSize: 12, 
+        color: 'white', 
+        fontWeight: 'bold', 
+        paddingVertical: 5, 
+        paddingHorizontal: 10, 
+        borderRadius: 20
+    }
 
 })
 
