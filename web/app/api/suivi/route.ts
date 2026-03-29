@@ -3,22 +3,22 @@ import prisma from '@/lib/prisma';
 
 export async function GET(request : Request) {
   const { searchParams } = new URL(request.url);
-  const themaId = searchParams.get('id');
-  const idForma = searchParams.get('idForma');
-  try {
-    let whereClause = {};
-    if (idForma) {
-      whereClause = { id_formation: parseInt(idForma) };
+  const idBenevole = searchParams.get('id');
+  try {    
+    const suivis = await prisma.suivi.findMany({
+    where: {
+      idBenevole: parseInt(idBenevole!)
+    },
+    include : {
+      session : {
+        include : {
+          formation : true
+        }
+      }
     }
-    else if (themaId) {
-      whereClause = { thematiqueId: parseInt(themaId) };
-    }
-    
-    const formations = await prisma.suivi.findMany({
-    where: whereClause,
   });
-  console.log("Formations récupérées:", formations);
-    return NextResponse.json(formations);
+    console.log("Suivis récupérés:", suivis);
+    return NextResponse.json(suivis);
   } catch (error) {
     return NextResponse.json({ error: "Erreur lors de la récupération" }, { status: 500 });
   }
