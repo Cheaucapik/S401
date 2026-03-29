@@ -27,7 +27,7 @@ const ThematiqueTemplate = ({color, colorTitle, title, duration, total, image, i
             const user = jsonValue != null ? JSON.parse(jsonValue) : null;
 
             if (user?.id) {
-                    const response = await fetch(`${ENDPOINTS.THEMATIQUES}?idThematique=${id_thematique}&idBenevole=${user.id}&statut=true`);
+                    const response = await fetch(`${ENDPOINTS.THEMATIQUES}?idThematique=${id_thematique}&idBenevole=${user.id}`);
                     const data = await response.json();
                     setProgression(data.count || 0);
                     console.log(progression);

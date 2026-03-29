@@ -37,9 +37,9 @@ const Login = ({navigation} : any) => {
 
                 if(rememberMe){
                     await AsyncStorage.setItem('userToken', data.token);
-                    await AsyncStorage.setItem('userData', JSON.stringify(data.user));
                 }
 
+                await AsyncStorage.setItem('userData', JSON.stringify(data.user));
                 setUserToken(data.token);
 
                 console.log("Connexion réussie")

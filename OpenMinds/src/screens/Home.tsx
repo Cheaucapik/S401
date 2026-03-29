@@ -7,6 +7,7 @@ import Loupe from '../components/Loupe'
 import MascotteExplorer from '../components/MascotteExplorer'
 import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
+import { ENDPOINTS } from '../config/api'
 
 const Home = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
@@ -14,7 +15,7 @@ const Home = ({navigation}:any) => {
     const [formations, setFormations] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const chargerThematiques = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/thematiques');
+        const response = await fetch(ENDPOINTS.THEMATIQUES);
         const data = await response.json();
         setFormations(data);
     };
@@ -30,7 +31,7 @@ const Home = ({navigation}:any) => {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: Colors.white }}>
             <View>
                 <LinearGradient style={styles.container}
                     colors={[Colors.purple, Colors.light_pink]} 
@@ -63,7 +64,7 @@ const Home = ({navigation}:any) => {
                 data={filteredData}
                 keyExtractor={(item) => item.id_thematique.toString()}
                 renderItem={({ item } : { item: any }) => (
-                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} progression={0} description={item.description} id_thematique={item.id_thematique} />
+                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
                 )}
 
                 contentContainerStyle={{ flexGrow: 1 }}

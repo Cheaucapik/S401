@@ -9,41 +9,58 @@ import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useFocusEffect } from '@react-navigation/native';
 
 const Thematiques = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
     const [formationsContinuer, setFormationsContinuer] = useState<any[]>([]);
+    const [formationsNonCommence, setFormationsNonCommence] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [allFormations, setAllFormations] = useState(false);
 
     const chargerThematiques = async () => {
         const user = await AsyncStorage.getItem('userData');
         const userId = user ? JSON.parse(user).id : null;
 
-        const [responseThema, responseThemaContinuer] = await Promise.all([
+        const [responseThema, responseThemaContinuer, responseThemaNonCommence] = await Promise.all([
             fetch(`${ENDPOINTS.THEMATIQUES}`),
-            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`)  
+            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`),
+            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=false`),  
         ]);
         const dataThema = await responseThema.json();
         const dataThemaContinuer = await responseThemaContinuer.json();
+        const dataThemaNonCommence = await responseThemaNonCommence.json();
 
         setFormations(dataThema);
+        setFilteredData(dataThema);
         setFormationsContinuer(dataThemaContinuer);
+        setFormationsNonCommence(dataThemaNonCommence);
+        
     };
-
     useEffect(() => {
-        chargerThematiques();
-     }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+        setAllFormations(false);
+        setSearchQuery('');
+    });
+    chargerThematiques();
+
+    return unsubscribe;
+    }, [navigation]);
 
     const handleSearch = (query : string) => {
         setSearchQuery(query);
+        if(query === ''){
+            setAllFormations(false);
+            return;
+        }
         const newData = formations.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
         setFilteredData(newData);
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: Colors.white }}>
             <View>
                 <LinearGradient style={styles.container}
                     colors={[Colors.purple, Colors.light_pink]} 
@@ -72,7 +89,7 @@ const Thematiques = ({navigation}:any) => {
             </View>
 
             <View style={{ flex: 3 }}>
-                {searchQuery !== '' ? (<FlatList
+                {(searchQuery !== '' || allFormations)? (<FlatList
                 data={filteredData}
                 keyExtractor={(item) => item.id_thematique.toString()}
                 renderItem={({ item } : { item: any }) => (
@@ -90,9 +107,10 @@ const Thematiques = ({navigation}:any) => {
                 persistentScrollbar={true}
                 bounces={true}
             />) : (
-                <View>
+                <>
+                <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Continuer...</Text>
-                    <View>
+                    <View style={{ flex: 1 }}>
                     <FlatList
                         data={formationsContinuer}
                         keyExtractor={(item) => item.id_thematique.toString()}
@@ -102,6 +120,24 @@ const Thematiques = ({navigation}:any) => {
                         />
                     </View>
                 </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Découvrir</Text>
+                    <View style={{ flex: 1 }}>
+                    <FlatList
+                        data={formationsNonCommence}
+                        keyExtractor={(item) => item.id_thematique.toString()}
+                        renderItem={({ item } : { item: any }) => (
+                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
+                        )}
+                        />
+                    </View>
+                </View>
+                <TouchableOpacity 
+                    style={{alignSelf: 'flex-end', marginVertical: 20, backgroundColor: Colors.grey, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginRight: 20}} 
+                    onPress={() => setAllFormations(true)}>
+                    <Text style={{ color: Colors.white, fontWeight: 'bold' }}>Plus de formations</Text>
+                </TouchableOpacity>
+                </>
             )}
             
             </View>

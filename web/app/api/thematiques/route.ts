@@ -6,8 +6,9 @@ export async function GET(Request : Request) {
   const idBenevole = searchParams.get('idBenevole');
   const idThematique = searchParams.get('idThematique');
   const statut = searchParams.get('statut');
+  let thematiques: any[] = [];
   try {    
-    if (idBenevole && idThematique && statut) {
+    if (idBenevole && idThematique) {
       const countFait = await prisma.formation.count({
         where: {
           thematiqueId: parseInt(idThematique),
@@ -27,8 +28,31 @@ export async function GET(Request : Request) {
       console.log("Progressions récupérées:", countFait);
       return NextResponse.json({ count: countFait });
     } 
-    else if (idBenevole) {
-      const thematiques = await prisma.thematique.findMany({
+    else if (idBenevole && statut === "false") {
+      thematiques = await prisma.thematique.findMany({
+        where : 
+        {
+            formations: {
+              none : {          
+                sessions: {
+                some: {
+                  suivis: {
+                    some: {
+                      idBenevole: parseInt(idBenevole),
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        include: {
+          _count: { select: { formations: true } }
+        }
+      });
+    }
+      else if (idBenevole) {
+      thematiques = await prisma.thematique.findMany({
         where : 
         {
             formations: {
@@ -49,40 +73,38 @@ export async function GET(Request : Request) {
           _count: { select: { formations: true } }
         }
       });
-
-      console.log("Thématiques récupérées continuer : ", thematiques);
-      return NextResponse.json(thematiques);
-
     }
     
     else {
-      const thematiques = await prisma.thematique.findMany({
+      thematiques = await prisma.thematique.findMany({
         include: {
             _count: {
                 select: { formations: true }
               }        
             }
         });
+    }
 
-      const durationSums = await prisma.formation.groupBy({
+    const durationSums = await prisma.formation.groupBy({
         by: ['thematiqueId'], 
         _sum: {
           duration: true
         }
       });
 
-      const result = thematiques.map(t => {
-        const sumData = durationSums.find(s => s.thematiqueId === t.id_thematique);
-        return {
-          ...t,
-          totalDuration: sumData?._sum?.duration || 0
-        };
-      });
+      if(thematiques){
+          const result = thematiques.map(t => {
+          const sumData = durationSums.find(s => s.thematiqueId === t.id_thematique);
+          return {
+            ...t,
+            totalDuration: sumData?._sum?.duration || 0
+          };
+          
+        });
 
-
-    console.log("Thématiques récupérées:", result);
-      return NextResponse.json(result);
-    }
+        console.log("Thématiques récupérées:", result);
+          return NextResponse.json(result);
+      }
   } catch (error) {
     return NextResponse.json({ error: "Erreur lors de la récupération" }, { status: 500 });
   }
