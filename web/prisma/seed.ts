@@ -138,11 +138,31 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
     }
   });
 
+
+    const sessionSecours2 = await prisma.session.create({
+    data: {
+      date_deb: new Date("2025-06-01T09:00:00"),
+      date_fin: new Date("2025-06-01T17:00:00"),
+      presentiel: true,
+      lieu: "Centre de secours Ivry",
+      idFormation: themaSante.formations[1].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
   await prisma.suivi.create({
     data: {
-      statut: false, // true pour "Bon / Validé"
+      statut: true,
       idBenevole: oceane.id_utilisateur,
       idSession: sessionSecours.id_session
+    }
+  });
+
+    await prisma.suivi.create({
+    data: {
+      statut: false,
+      idBenevole: oceane.id_utilisateur,
+      idSession: sessionSecours2.id_session
     }
   });
 

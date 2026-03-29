@@ -8,26 +8,28 @@ import MascotteFormat from '../components/MascotteForma'
 import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Thematiques = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
+    const [formationsContinuer, setFormationsContinuer] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
 
     const chargerThematiques = async () => {
-        const jsonValue = await AsyncStorage.getItem('userData');
-        const user = jsonValue != null ? JSON.parse(jsonValue) : null;
+        const user = await AsyncStorage.getItem('userData');
+        const userId = user ? JSON.parse(user).id : null;
 
-        const [responseThema, responseSuivi] = await Promise.all([
+        const [responseThema, responseThemaContinuer] = await Promise.all([
             fetch(`${ENDPOINTS.THEMATIQUES}`),
-            fetch(`${ENDPOINTS.SUIVI}?id=${user?.id}`)
+            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`)  
         ]);
         const dataThema = await responseThema.json();
-        const dataSuivi = await responseSuivi.json();
+        const dataThemaContinuer = await responseThemaContinuer.json();
 
         setFormations(dataThema);
+        setFormationsContinuer(dataThemaContinuer);
     };
 
     useEffect(() => {
@@ -74,7 +76,7 @@ const Thematiques = ({navigation}:any) => {
                 data={filteredData}
                 keyExtractor={(item) => item.id_thematique.toString()}
                 renderItem={({ item } : { item: any }) => (
-                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} progression={0} description={item.description} id_thematique={item.id_thematique} />
+                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
                 )}
 
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -89,7 +91,16 @@ const Thematiques = ({navigation}:any) => {
                 bounces={true}
             />) : (
                 <View>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Continuer...</Text>
+                    <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Continuer...</Text>
+                    <View>
+                    <FlatList
+                        data={formationsContinuer}
+                        keyExtractor={(item) => item.id_thematique.toString()}
+                        renderItem={({ item } : { item: any }) => (
+                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
+                        )}
+                        />
+                    </View>
                 </View>
             )}
             

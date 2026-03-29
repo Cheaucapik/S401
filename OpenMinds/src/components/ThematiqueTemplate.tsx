@@ -1,7 +1,9 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { Colors } from '../constants/Colors';
 import { useNavigation } from '@react-navigation/native';
+import { ENDPOINTS } from '../config/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 interface FormationProps {
@@ -9,15 +11,37 @@ interface FormationProps {
     colorTitle: string;
     title: string;
     duration: string;
-    progression: number;
     total : number;
     image : string;
     id_thematique : number;
     description : string;
 }
 
-const ThematiqueTemplate = ({color, colorTitle, title, duration, progression, total, image, id_thematique, description} : FormationProps) => {
+const ThematiqueTemplate = ({color, colorTitle, title, duration, total, image, id_thematique, description} : FormationProps) => {
+    const [progression, setProgression] = useState();
     const navigation = useNavigation<any>();
+
+    const fetchProgression = async () => {
+        try{
+            const jsonValue = await AsyncStorage.getItem('userData');
+            const user = jsonValue != null ? JSON.parse(jsonValue) : null;
+
+            if (user?.id) {
+                    const response = await fetch(`${ENDPOINTS.THEMATIQUES}?idThematique=${id_thematique}&idBenevole=${user.id}&statut=true`);
+                    const data = await response.json();
+                    setProgression(data.count || 0);
+                    console.log(progression);
+                }
+            }
+        catch(error){
+            console.log("Erreur lors de la récupération de la progression :", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchProgression();
+    }, []);
+
     return (
     <View style={[style.container, { backgroundColor: color}]}>
         <Image source={{ uri: image }} style={style.imageContainer} />
@@ -31,7 +55,7 @@ const ThematiqueTemplate = ({color, colorTitle, title, duration, progression, to
         <View style={style.detail2Container}>
             <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: colorTitle, paddingHorizontal : 8, paddingVertical : 2, borderRadius : 10 }}>{progression}/{total}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Formations', {color, colorTitle, title, total, id : id_thematique, description})}>
-                <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>Rejoindre</Text>
+                <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20 }}>{progression !== 0 ? "Continuer" : "Rejoindre"}</Text>
             </TouchableOpacity>
         </View>
     </View>

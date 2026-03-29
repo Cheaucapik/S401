@@ -7,7 +7,8 @@ export async function GET(request : Request) {
   try {    
     const suivis = await prisma.suivi.findMany({
     where: {
-      idBenevole: parseInt(idBenevole!)
+      idBenevole: parseInt(idBenevole!),
+      statut: true
     },
     include : {
       session : {
