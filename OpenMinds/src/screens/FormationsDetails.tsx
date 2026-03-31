@@ -40,7 +40,7 @@ const FormationsDetails = () => {
   const [formation, setFormation] = useState<any>(null)
 
   const chargerFormation = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/formations?idForma=' + id);
+        const response = await fetch('http://192.168.1.32:3000/api/formations?idForma=' + id);
         const data = await response.json();
         setFormation(data[0]);
     };

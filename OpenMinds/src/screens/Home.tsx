@@ -14,7 +14,7 @@ const Home = ({navigation}:any) => {
     const [formations, setFormations] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const chargerThematiques = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/thematiques');
+        const response = await fetch('http://192.168.1.32:3000/api/thematiques');
         const data = await response.json();
         setFormations(data);
     };

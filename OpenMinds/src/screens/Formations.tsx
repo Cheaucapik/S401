@@ -18,7 +18,7 @@ const Formations = () => {
     const { color, colorTitle, title, total, id, description} = (route.params as FormationsProps) || {};
     const [formations, setFormations] = useState<any[]>([]);
     const chargerFormations = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/formations?id=' + id);
+        const response = await fetch('http://192.168.1.32:3000/api/formations?id=' + id);
         const data = await response.json();
         setFormations(data);
     };
