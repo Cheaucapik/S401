@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, StatusBar, Touchab
 import LinearGradient from 'react-native-linear-gradient';
 // L'IMPORT MAGIQUE DE TA VRAIE MASCOTTE !
 import MascotteForma from '../../components/MascotteForma';
+import { ENDPOINTS } from '../../config/api';
 
 interface Participant {
   id_benevole: number;
@@ -16,7 +17,7 @@ export default function ListeParticipants() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = 'http://192.168.1.32:3000/api/participants?sessionId=1';
+  const API_URL = `${ENDPOINTS.PARTICIPANTS}?sessionId=1`;
 
   useEffect(() => {
     chargerParticipants();
