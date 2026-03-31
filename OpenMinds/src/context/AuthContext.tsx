@@ -6,10 +6,12 @@ const AuthContext = createContext<any>(null);
 export const AuthProvider = ({children} : any) => {
     const [userToken, setUserToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [userType, setUserType] = useState('ADMINISTRATEUR');
 
     useEffect(() => {
     const loadToken = async () => {
         const token = await AsyncStorage.getItem('userToken');
+        
         setUserToken(token);
         setIsLoading(false);
     };
@@ -17,7 +19,7 @@ export const AuthProvider = ({children} : any) => {
     }, []);
 
     return (
-    <AuthContext.Provider value={{ userToken, setUserToken, isLoading }}>
+    <AuthContext.Provider value={{ userToken, setUserToken, isLoading, setUserType, userType }}>
         {children}
     </AuthContext.Provider>
     );

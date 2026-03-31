@@ -33,6 +33,8 @@ export async function POST(request: Request) {
             { expiresIn: '24h' }
         );
 
+        console.log(user.type_utilisateur);
+
         return NextResponse.json({
             message: "Connexion réussie",
             token: token,

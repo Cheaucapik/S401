@@ -166,7 +166,7 @@ Un digital-Learning/formation e-learning pour informer et sensibiliser sur les e
       email: "admin@system.com",
       password: hashedPassword2,
       date_naissance: new Date("1990-01-01"),
-      type_utilisateur: "ADMIN",
+      type_utilisateur: "ADMINISTRATEUR",
       administrateur: { create: {} }
     }
   });

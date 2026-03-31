@@ -11,7 +11,7 @@ import {useAuth} from '../context/AuthContext'
 import { ENDPOINTS } from '../config/api';
 
 const Login = ({navigation} : any) => {
-    const { setUserToken } = useAuth();
+    const { setUserToken, setUserType } = useAuth();
 
     const [email, setEmail] = useState('');
     const [mdp, setMdp] = useState('');

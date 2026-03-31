@@ -69,7 +69,7 @@ const FormationsDetails = () => {
       `Vous êtes inscrit pour le ${dateLongue} à ${heure} pour une durée de ${duree} heure(s) en ${s.presentiel ? 'présentiel' : 'distanciel'}.\n\n`
     );
     } else {
-      Alert.alert("Remplace moi par l'inscription d'une session");
+      Alert.alert("Remplace moi par l'inscription d'une session"); //Talina
     }
   }
 

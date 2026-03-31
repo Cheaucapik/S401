@@ -17,7 +17,7 @@ import AxesAdmin from '../screens/AxesAdmin'
 const Tab = createBottomTabNavigator();
 
 
-const RootNavigator = () => {
+const RootNavigatorAdmin = () => {
 
   return (
     <Tab.Navigator
@@ -126,4 +126,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RootNavigator;
+export default RootNavigatorAdmin;
