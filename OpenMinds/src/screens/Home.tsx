@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView} from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, SectionList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { LinearGradient } from 'react-native-linear-gradient'
 import { Colors } from '../constants/Colors'
@@ -11,7 +11,7 @@ import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ProgressionTemplate from '../components/ProgressionTemplate'
 
-const Home = ({navigation}:any) => {
+const Home = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
@@ -34,23 +34,35 @@ const Home = ({navigation}:any) => {
 
     useEffect(() => {
         chargerThematiques();
-     }, []);
+    }, []);
 
-    const handleSearch = (query : string) => {
+    const handleSearch = (query: string) => {
         setSearchQuery(query);
         const newData = formations.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
         setFilteredData(newData);
     }
 
+    const sections = searchQuery !== '' 
+        ? [{ title: 'Recherche', data: filteredData, type: 'SEARCH' }]
+        : [
+            { title: 'Ma progression', data: [formationsContinuer.filter(item => item.progression < item._count.formations)], type: 'PROGRESSION' },
+            { title: 'Mon Calendrier', data: [null], type: 'CALENDAR' }
+          ];
+
     return (
-        <ScrollView persistentScrollbar={false} style={{ flex: 1, backgroundColor: Colors.white }}>
-            <View>
+        <SectionList
+            sections={sections}
+            stickySectionHeadersEnabled={false}
+            keyExtractor={(item, index) => item?.id_thematique?.toString() || index.toString()}
+            style={{ flex: 1, backgroundColor: Colors.white }}
+            
+            ListHeaderComponent={
                 <LinearGradient style={styles.container}
-                    colors={[Colors.purple, Colors.light_pink]} 
-                    start={{ x: 0, y: 0 }} 
+                    colors={[Colors.purple, Colors.light_pink]}
+                    start={{ x: 0, y: 0 }}
                     end={{ x: 0, y: 1 }}
-                    >
-                    <View style={[{ marginTop: insets.top, marginBottom : 20 }, styles.header]}>
+                >
+                    <View style={[{ marginTop: insets.top, marginBottom: 20 }, styles.header]}>
                         <Text style={styles.title}>Explorer</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                             <Account />
@@ -69,14 +81,21 @@ const Home = ({navigation}:any) => {
                         />
                     </View>
                 </LinearGradient>
-            </View>
+            }
 
-            <View style={{ flex: 3 }}>
-                {searchQuery !== '' ? (<FlatList
+            renderSectionHeader={({ section: { title } }) => {
+                if (searchQuery !== '') return null;
+                return <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>{title}</Text>
+            }}
+
+            renderItem={({ item, section }) => {
+                if (section.type === 'SEARCH') {
+                    return (
+                        <FlatList
                 data={filteredData}
                 keyExtractor={(item) => item.id_thematique.toString()}
                 renderItem={({ item } : { item: any }) => (
-                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression}/>
+                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
                 )}
 
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -87,31 +106,50 @@ const Home = ({navigation}:any) => {
                     </View>
                 }
 
-                persistentScrollbar={true}
-                bounces={true}
-            />) : (
-            <>
-                <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Ma progression</Text>
-                    <FlatList
-                        data={formationsContinuer.filter(item => item.progression < item._count.formations)}
-                        horizontal={true}
-                        keyExtractor={(item) => item.id_thematique.toString()}
-                        renderItem={({ item } : { item: any }) => (
-                            <ProgressionTemplate title={item.title} total={item._count.formations} idThematique={item.id_thematique} progression={item.progression} color={item.color} colorTitle={item.colorTitle} description={item.description} image={item.image} />
-                        )}
-                        showsHorizontalScrollIndicator={false}
-                        bounces={true}
-                    />
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Mon Calendrier</Text>
-                </View>
-            </>
-            )}
-            
-            </View>
-        </ScrollView>
+                persistentScrollbar={false}
+                bounces={true} />
+                    );
+                }
+
+                if (section.type === 'PROGRESSION') {
+                    return (
+                        <FlatList
+                            data={item}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            keyExtractor={(prog) => prog.id_thematique.toString()}
+                            renderItem={({ item: prog }) => (
+                                <ProgressionTemplate 
+                                    title={prog.title} 
+                                    total={prog._count.formations} 
+                                    idThematique={prog.id_thematique} 
+                                    progression={prog.progression} 
+                                    color={prog.color} 
+                                    colorTitle={prog.colorTitle} 
+                                    description={prog.description} 
+                                    image={prog.image} 
+                                />
+                            )}
+                            bounces={true}
+                        />
+                    );
+                }
+
+                if (section.type === 'CALENDAR') {
+                    return <View style={{ height: 100 }} /> 
+                }
+
+                return null;
+            }}
+
+            ListEmptyComponent={
+                searchQuery !== '' ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                        <Text style={{ fontSize: 18, color: 'gray' }}>Aucune thématique trouvée</Text>
+                    </View>
+                ) : null
+            }
+        />
     )
 }
 
@@ -151,7 +189,7 @@ const styles = StyleSheet.create({
     mascotte: {
         alignSelf: 'center',
     },
-    header : {
+    header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
