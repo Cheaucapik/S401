@@ -20,6 +20,7 @@ const Thematiques = ({navigation}:any) => {
     const [allFormations, setAllFormations] = useState(false);
 
     const chargerThematiques = async () => {
+
         const user = await AsyncStorage.getItem('userData');
         const userId = user ? JSON.parse(user).id : null;
 
