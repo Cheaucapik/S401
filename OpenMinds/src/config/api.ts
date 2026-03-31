@@ -10,4 +10,5 @@ export const ENDPOINTS = {
     FORMATIONS : `${API_BASE_URL}/formations`,
     THEMATIQUES : `${API_BASE_URL}/thematiques`,
     SESSIONS : `${API_BASE_URL}/session`,
+    PARTICIPANTS : `${API_BASE_URL}/participants`
 };

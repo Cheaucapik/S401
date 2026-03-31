@@ -18,11 +18,7 @@ const App = () => {
     <>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" />
       <AuthProvider>
-        {/* On met la navigation de l'équipe en pause temporairement */}
-        {/* <AppNavigator /> */}
-        
-        {/* On met ton tout nouvel écran sous les projecteurs ! */}
-        <ListeParticipants />
+        <AppNavigator />
       </AuthProvider>
     </>
   );
