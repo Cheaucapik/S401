@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList} from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { LinearGradient } from 'react-native-linear-gradient'
+import LinearGradient from 'react-native-linear-gradient'
 import { Colors } from '../constants/Colors'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Loupe from '../components/Loupe'
@@ -8,7 +8,7 @@ import MascotteExplorer from '../components/MascotteExplorer'
 import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 
-const Home = ({navigation}:any) => {
+const HomePageAdmin = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
@@ -28,6 +28,10 @@ const Home = ({navigation}:any) => {
         const newData = formations.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
         setFilteredData(newData);
     }
+
+    const handleLogin = () => {
+  console.log("login");
+}
 
     return (
         <View style={{ flex: 1 }}>
@@ -49,7 +53,7 @@ const Home = ({navigation}:any) => {
                         <TextInput
                             style={styles.input}
                             autoCapitalize='none'
-                            placeholder="Chercher des thématiques"
+                            placeholder="Chercher des axes"
                             autoCorrect={false}
                             value={searchQuery}
                             onChangeText={(query) => handleSearch(query)}
@@ -70,7 +74,7 @@ const Home = ({navigation}:any) => {
                 
                 ListEmptyComponent={
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{ fontSize: 18, color: 'gray' }}>Aucune thématique trouvée</Text>
+                        <Text style={{ fontSize: 18, color: 'gray' }}>Aucun axe trouvé</Text>
                     </View>
                 }
 
@@ -78,14 +82,15 @@ const Home = ({navigation}:any) => {
                 bounces={true}
             />) : (
               <>
+            
                 <View>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Ma progression</Text>
-                </View>
-                <View>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Mon Calendrier</Text>
+                    <Text style={{ fontSize: 30, fontWeight: 'bold', margin: 20 }}>Modifier les axes</Text>
                 </View>
               </>
             )}
+            <TouchableOpacity activeOpacity={1} onPress={() => handleLogin()}>
+                            <Text style={styles.addAxe}>+ Ajouter un axe</Text>
+                        </TouchableOpacity>
             
             </View>
         </View>
@@ -135,6 +140,17 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
     },
+    addAxe : {
+        paddingHorizontal : 30,
+        paddingVertical : 10,
+        backgroundColor : Colors.primary_blue,
+        color : Colors.white,
+        fontWeight : "bold",
+        fontSize : 20,
+        borderRadius : 30,
+        margin : 60,
+        textAlign : "center"
+    },
 })
 
-export default Home
+export default HomePageAdmin

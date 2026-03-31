@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import RootNavigator from './RootNavigator';
+import RootNavigator from './RootNavigatorAdmin';
 import FormationsDetails from '../screens/FormationsDetails';
 import Settings from '../screens/Settings';
 import Formations from '../screens/Formations'
@@ -9,6 +9,8 @@ import { ActivityIndicator } from 'react-native';
 import Login from '../screens/Login'
 import { useAuth } from '../context/AuthContext';
 import Signup from '../screens/Signup';
+import HomePageAdmin from '../screens/HomePageAdmin';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -21,12 +23,6 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {userToken === null ? 
-        (<>
-          <Stack.Screen name="Login" component={Login} /> 
-          <Stack.Screen name="Signup" component={Signup} />
-        </>) : 
-        (<>
         <Stack.Screen name="MainTabs" component={RootNavigator} />
         <Stack.Screen name="Formations" component={Formations} 
         options={{
@@ -37,6 +33,7 @@ const AppNavigator = () => {
             headerShadowVisible: false,
             headerTitleAlign: 'center',
         }}/>
+        
         <Stack.Screen name="FormationsDetails" component={FormationsDetails}
         options={{
             headerTitle: "Formations",
@@ -46,7 +43,7 @@ const AppNavigator = () => {
             headerTintColor: Colors.primary_blue,
             headerShadowVisible: false,}} />
         <Stack.Screen name="Profile" component={Settings}/>
-        </>)}
+
       </Stack.Navigator>
       </NavigationContainer>
   );

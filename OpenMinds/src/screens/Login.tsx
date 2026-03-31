@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../context/AuthContext'
 import { ENDPOINTS } from '../config/api';
+import bcrypt from "bcryptjs"
 
 const Login = ({navigation} : any) => {
     const { setUserToken } = useAuth();
@@ -19,37 +20,51 @@ const Login = ({navigation} : any) => {
     const [rememberMe, setRememberMe] = useState(false);
 
     const handleLogin = async () => {
-        try{
-            const response = await fetch(`${ENDPOINTS.LOGIN}`, {
-                method : 'POST',
-                headers : {
-                    'Content-Type': 'application/json',
-                },
-                body : JSON.stringify({
-                    email : email.trim(),
-                    password : mdp,
-                }),
-            });
+  try {
+    console.log("LOGIN URL :", ENDPOINTS.LOGIN);
 
-            const data = await response.json();
-            if(response.ok && data.token){
-                console.log("Réponse du serveur :", data);
+    const response = await fetch(ENDPOINTS.LOGIN, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.trim(),
+        password: mdp,
+      }),
+    });
 
-                if(rememberMe){
-                    await AsyncStorage.setItem('userToken', data.token);
-                    await AsyncStorage.setItem('userData', JSON.stringify(data.user));
-                }
+    // 🔥 on récupère d'abord le texte
+    const text = await response.text();
+    console.log("REPONSE BRUTE :", text);
 
-                setUserToken(data.token);
-
-                console.log("Connexion réussie")
-            }
-            else console.log("Erreur", data.error);
-        }
-        catch(error){
-            console.log(error);
-        }
+    // 🔥 on essaye de parser
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.log("Erreur parsing JSON");
+      return;
     }
+
+    if (response.ok && data.token) {
+      console.log("Réponse du serveur :", data);
+
+      if (rememberMe) {
+        await AsyncStorage.setItem('userToken', data.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+      }
+
+      setUserToken(data.token);
+      console.log("Connexion réussie");
+    } else {
+      console.log("Erreur :", data.error);
+    }
+
+  } catch (error) {
+    console.log("Erreur fetch :", error);
+  }
+};
 
     return (
     <LinearGradient  style={styles.container}

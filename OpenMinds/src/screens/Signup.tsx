@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Alert } from 'react-native';
 import Calendar from '../components/Calendar'
 import Account  from '../components/Account'
-import DateTimePicker from '@react-native-community/datetimepicker';
+//import DateTimePicker from '@react-native-community/datetimepicker';
 import ArrowLeft from '../components/ArrowLeft'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { ENDPOINTS } from '../config/api';
@@ -116,14 +116,14 @@ const Signup = ({navigation} : any) => {
                     <Calendar />
                     <Text style={{color : Colors.gray}}>{dateAffichee}</Text>
                 </TouchableOpacity>
-                {show && (
+            {show && (
                     <DateTimePicker
-                        value={date}
-                        mode="date"
-                        display="spinner"
-                        onChange={onChange}
-                        maximumDate={new Date()}
-                        />
+                    value={date}
+                     mode="date"
+                    display="spinner"
+                    onChange={onChange}
+                    maximumDate={new Date()}
+                    />
                 )
             }
             </View>
