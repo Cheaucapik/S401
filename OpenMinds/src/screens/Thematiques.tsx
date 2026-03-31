@@ -9,7 +9,6 @@ import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useFocusEffect } from '@react-navigation/native';
 
 const Thematiques = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
@@ -25,9 +24,9 @@ const Thematiques = ({navigation}:any) => {
         const userId = user ? JSON.parse(user).id : null;
 
         const [responseThema, responseThemaContinuer, responseThemaNonCommence] = await Promise.all([
-            fetch(`${ENDPOINTS.THEMATIQUES}`),
             fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`),
-            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=false`),  
+            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=continuer`),
+            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=decouvrir`),  
         ]);
         const dataThema = await responseThema.json();
         const dataThemaContinuer = await responseThemaContinuer.json();
@@ -39,15 +38,19 @@ const Thematiques = ({navigation}:any) => {
         setFormationsNonCommence(dataThemaNonCommence);
         
     };
+
+    useEffect(() => {
+        chargerThematiques();
+     }, []);
+
     useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
         setAllFormations(false);
         setSearchQuery('');
+        setFilteredData(formations);
     });
-    chargerThematiques();
-
     return unsubscribe;
-    }, [navigation]);
+    }, [navigation, formations]);
 
     const handleSearch = (query : string) => {
         setSearchQuery(query);
@@ -93,7 +96,7 @@ const Thematiques = ({navigation}:any) => {
                 data={filteredData}
                 keyExtractor={(item) => item.id_thematique.toString()}
                 renderItem={({ item } : { item: any }) => (
-                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
+                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
                 )}
 
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -104,7 +107,7 @@ const Thematiques = ({navigation}:any) => {
                     </View>
                 }
 
-                persistentScrollbar={true}
+                persistentScrollbar={false}
                 bounces={true}
             />) : (
                 <>
@@ -112,22 +115,28 @@ const Thematiques = ({navigation}:any) => {
                     <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Continuer...</Text>
                     <View style={{ flex: 1 }}>
                     <FlatList
-                        data={formationsContinuer}
+                        data={formationsContinuer.filter(item => item.progression < item._count.formations)}
                         keyExtractor={(item) => item.id_thematique.toString()}
+                        ListEmptyComponent={
+                            <Text style={styles.textAucun}>Vous n'avez commencé aucune formation</Text>
+                        }
                         renderItem={({ item } : { item: any }) => (
-                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
+                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
                         )}
                         />
                     </View>
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Découvrir</Text>
+                    <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20, marginTop : 20 }}>Découvrir</Text>
                     <View style={{ flex: 1 }}>
                     <FlatList
                         data={formationsNonCommence}
                         keyExtractor={(item) => item.id_thematique.toString()}
+                        ListEmptyComponent={
+                            <Text style={styles.textAucun}>Vous avez tout découvert, restez en alerte pour les nouvelles formations !</Text>
+                        }
                         renderItem={({ item } : { item: any }) => (
-                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} />
+                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
                         )}
                         />
                     </View>
@@ -188,6 +197,11 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
     },
+    textAucun: {
+        fontSize: 16,
+        color: 'gray',
+        margin: 20,
+    },  
 })
 
 export default Thematiques

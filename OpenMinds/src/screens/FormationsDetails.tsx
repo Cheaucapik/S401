@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
 import { Colors } from '../constants/Colors';
 import Rond from '../components/Rond';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Markdown from 'react-native-markdown-display';
 import { useEffect, useState } from 'react';
+import { ENDPOINTS } from '../config/api';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const InfoFormation = ({titre, numero, presentiel, colorTitle, total} :{ titre : string, numero : number, presentiel : boolean, colorTitle : string, total : number }) => (
   <View style={styles.details}>
@@ -28,21 +30,60 @@ interface FormationDetailsProps {
   colorTitle: string;
   total : number;
   id : number;
-  id_formation : string;
 }
 
 
 const FormationsDetails = () => {
 
   const route = useRoute();
-  const { colorTitle, title, duration, numero, presentiel, total, image, id, id_formation} = (route.params as FormationDetailsProps) || {};
+  const { colorTitle, title, duration, numero, presentiel, total, image, id} = (route.params as FormationDetailsProps) || {};
 
   const [formation, setFormation] = useState<any>(null)
+  const [sessions, setSessions] = useState<any>(null)
+  const navigation = useNavigation<any>();
+
+  const handlePress = () => {
+    if(sessions.length > 0) {
+      const s = sessions[0];
+      const dateLongue = new Date(s.date_deb).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    const heure = new Date(s.date_deb).toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const heure_fin = new Date(s.date_fin).toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const duree = (new Date(s.date_fin).getTime() - new Date(s.date_deb).getTime()) / (1000 * 60 * 60);
+
+
+      Alert.alert(
+      "Déjà inscrit",
+      `Vous êtes inscrit pour le ${dateLongue} à ${heure} pour une durée de ${duree} heure(s) en ${s.presentiel ? 'présentiel' : 'distanciel'}.\n\n`
+    );
+    } else {
+      Alert.alert("Remplace moi par l'inscription d'une session");
+    }
+  }
 
   const chargerFormation = async () => {
-        const response = await fetch('http://192.168.1.147:3000/api/formations?idForma=' + id);
-        const data = await response.json();
+    const user = await AsyncStorage.getItem('userData');
+    const userId = user ? JSON.parse(user).id : null;
+        const [responseForma, responseSession] = await Promise.all([
+            fetch(`${ENDPOINTS.FORMATIONS}?idForma=` + id),
+            fetch(`${ENDPOINTS.SESSIONS}?idFormation=${id}&idBenevole=${userId}`)
+        ]);
+        const data = await responseForma.json();
+        const dataSession = await responseSession.json();
         setFormation(data[0]);
+        setSessions(dataSession);
     };
 
     useEffect(() => {
@@ -63,7 +104,8 @@ const FormationsDetails = () => {
           {formation.description}
         </Markdown> ) : (<ActivityIndicator size="large"/>)}
       </View>
-      <TouchableOpacity style={{ marginTop: 20, borderRadius: 30, alignItems: 'center'}}>
+      <TouchableOpacity style={{ marginTop: 20, borderRadius: 30, alignItems: 'center'}} 
+      onPress={handlePress}>
         <Text style={{ color: 'white', fontSize: 30, fontWeight: 'bold', backgroundColor: Colors.primary_blue, paddingVertical: 10, borderRadius: 30, paddingHorizontal: 40 }}>Rejoindre</Text>
       </TouchableOpacity>
     </ScrollView>

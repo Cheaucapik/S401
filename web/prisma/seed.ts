@@ -24,31 +24,26 @@ async function main() {
     );
   }
 
-  const themaSante = await prisma.thematique.create({
+  const themaInclusion = await prisma.thematique.create({
     data: {
-      title: "Santé et Secourisme",
+      title: "Inclusion",
       color: "#F5E7FB",
       colorTitle: "#C87CE9",
-      description : "Apprenez à effectuer les gestes de premiers secours",
-      image : "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12169/conversions/solidarite-et-insertion-5-small.jpg?v=1737022213",
+      description : "Formez-vous à l'inclusion et à l'accessibilité avec la Fédération Nationale de Protection Civile",
+      image : "https://www.comundi.fr/mag-des-competences/wp-content/uploads/2024/10/Inclusion-et-handicap.jpg",
       formations: {
         create: [
-          { title: "Secourisme Niveau 1", numero: 1, duration: 2, presentiel: true, description: `
-Lors de cette formation PSC, vous apprenez les gestes de premiers secours afin de savoir réagir efficacement en cas d’accident tels que l’arrêt cardiaque, la perte de connaissance, l’étouffement, les malaises ou encore des traumatismes.
+          { title: "Inclusion Niveau 1", numero: 1, duration: 3, presentiel: true, description: `
+L’inclusion dans l'emploi est un projet de société gouvernemental qui permet aux personnes les plus fragiles de bénéficier de l’accès à l’emploi et à la formation pour s’insérer dans la société par le travail.
 &nbsp;
-## Programme de formation
+## Nos missions
+Ce service facilite la mise en relation des personnes les plus éloignées de l'emploi avec les employeurs inclusifs (SIAE, GEIQ, EA, EATT et facilitateurs de clauses sociales) et les accompagnants (orienteurs et prescripteurs habilités).
 &nbsp;
-### Les gestes d'urgence
-* Le **massage cardiaque** (30 compressions / 2 insufflations)
-* L'utilisation du **DAE** (Défibrillateur)
+Il offre aux utilisateurs un outil numérique mutualisé pour simplifier les procédures, fluidifier les parcours d'insertion entre professionnels et renforcer la qualité de l'accompagnement des personnes.
 &nbsp;
-### Situations spécifiques
-* La personne s'étouffe (Méthode de *Heimlich*)
-* La personne saigne abondamment
-&nbsp;
-> *Note : Une attestation de fin de formation, le diplôme d'état de Premiers Secours Citoyens (PCS) vous sera délivré.*
-  `, image : "https://my-security-job.com/static/uploads/2024/10/secourisme-les-principes-essentiels-1024x664.jpg" },
-          { title: "Aide aux personnes isolées", numero: 2, duration: 1, presentiel: false, description: "Apprenez à accompagner les personnes isolées dans leur quotidien.", image : "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59910/conversions/EuDTImSoQnWqn6BQBgsqwYSHfYkVza-small.jpg?v=1737022229" },
+> *Note : Une attestation de fin de formation, vous sera délivrée.*
+  `, image : "https://cdn.prod.website-files.com/66952fbab5c04d98f71407d9/686650a26c1d687ec643a7ec_femmes-inclusion-diversite-reunion-rh.jpg" },
+          { title: "Inclusion Niveau 2", numero: 2, duration: 1, presentiel: false, description: "Apprenez à accompagner les personnes isolées dans leur quotidien.", image : "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59910/conversions/EuDTImSoQnWqn6BQBgsqwYSHfYkVza-small.jpg?v=1737022229" },
         ],
       },
     },
@@ -60,28 +55,65 @@ Lors de cette formation PSC, vous apprenez les gestes de premiers secours afin d
 
   await prisma.thematique.create({
     data: {
-      title: "Sauvetage animal",
+      title: "Tolérance",
       color: "#ECF3FC",
       colorTitle: "#7CABE9",
-      description : "Formez-vous au secourisme canin avec la Fédération Nationale de Protection Civile",
-      image : "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12189/conversions/protection-de-la-nature-4-small.jpg?v=1737022287",
+      description : "Formez-vous à la tolérance et à l'inclusion avec la Fédération Nationale de Protection Civile",
+      image : "https://jmed-aap.org/wp-content/uploads/2022/07/Foto-Final-22-jui_8-1200x800.jpg",
       formations: {
         create: [
-          { title: "Secours canin Niveau 1", numero: 1, duration: 2, presentiel: true, description: `
-La formation en Secourisme Canin, proposée par la Protection Civile, vous apprend à adopter les bons réflexes pour faire face aux incidents les plus fréquents chez les animaux : malaises, brûlures, étouffements, ou blessures.
+          { title: "Tolérance et Inclusion Niveau 1", numero: 1, duration: 1, presentiel: true, description: `
+En tant que formateur de la Fédération Nationale de Protection Civile, vous jouez un rôle crucial dans la promotion de la tolérance et de l'inclusion au sein de notre communauté. Cette formation est conçue pour vous fournir les connaissances et les compétences nécessaires pour sensibiliser efficacement les participants à ces valeurs fondamentales.
 &nbsp;
-Cette formation s’adresse à vous si vous êtes en contact régulier avec des animaux (professionnels du secteur animalier, propriétaires de chiens, éducateurs canins…) ou si vous souhaitez simplement être en mesure de réagir efficacement en cas de situation dangereuse impliquant un animal. Grâce à cette formation, vous serez prêt à intervenir et à apporter les premiers secours à votre compagnon à quatre pattes.
+### Objectifs de la formation
+- Comprendre les concepts de tolérance et d'inclusion
+- Identifier les différentes formes de discrimination et de préjugés
+- Apprendre à créer un environnement inclusif et respectueux
+- Savoir comment intervenir en cas de comportements discriminatoires
 &nbsp;
-### Comment se déroule la formation secourisme canin ?
-La formation en Secourisme Canin, dispensée par la Protection Civile, dure une journée et s’organise autour d’étapes essentielles pour préparer les participants à intervenir efficacement en cas d’urgence impliquant un animal.
-&nbsp;
-La formation couvre ensuite les gestes de premiers secours adaptés aux animaux, notamment la gestion des blessures, des brûlures, des hémorragies, et des obstructions des voies respiratoires. Ces étapes permettent de stabiliser l’état de l’animal en attendant l’intervention d’un vétérinaire ou d’un secours spécialisé.
-&nbsp;
+Rejoignez-nous pour cette formation enrichissante qui vous permettra de devenir un acteur clé dans la promotion de la tolérance et de l'inclusion au sein de la Fédération Nationale de Protection Civile.
 Tout d’abord, les participants apprennent à reconnaître les signes de détresse chez un chien et à évaluer la situation pour donner l’alerte rapidement et de manière appropriée.
-  `, image : "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12189/conversions/protection-de-la-nature-4-small.jpg?v=1737022287" },
-          { title: "Secours canin Niveau 2", numero: 2, duration: 1, presentiel: false, description: "Formez-vous au secourisme canin avec la Fédération Nationale de Protection Civile", image : "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12189/conversions/protection-de-la-nature-4-small.jpg?v=1737022287" },
+  `, image : "https://media.licdn.com/dms/image/v2/D4D22AQGI8POhnkvYHw/feedshare-shrink_800/B4DZnZE2CkJcAg-/0/1760283554093?e=2147483647&v=beta&t=_6gEentyhdRJhZ2phsolivvF9JfBSIe0ci5J8L53Iy4" },
+          { title: "Tolérance et Inclusion Niveau 2", numero: 2, duration: 5, presentiel: false, description: "Formez-vous à la tolérance et à l'inclusion avec la Fédération Nationale de Protection Civile", image : "https://udd.eu/uploads/2023-08/process-comdef-645a0558404b0428887323-64edade51eb19302549063.webp" },
         ],
       },
+    },
+    include: {
+      formations: true,
+    },
+  })
+
+  const themaEgalite = await prisma.thematique.create({
+    data: {
+      title: "Egalité",
+      color: "#FFC7C7",
+      colorTitle: "#E97C7C",
+      description : "Formez-vous à l'égalité professionnelle femmes-hommes avec la Fédération Nationale de Protection Civile",
+      image : "https://www.cnfce.com/course/assets/316c548d-ee2a-4c0c-9a63-316928c2f9bc/494c2198-422d-42d5-ba3a-4aa79e43f0a1?size=mobile",
+      formations: {
+        create: [
+          { title: "Egalité hommes femmes", numero: 1, duration: 1, presentiel: true, description: `
+Un digital-Learning/formation e-learning pour informer et sensibiliser sur les enjeux de l’égalité professionnelle femmes-hommes, et les moyens d’agir pour faire progresser l’égalité dans les entreprises.
+&nbsp;
+### Objectifs de la formation
+&nbsp;
+- Comprendre les enjeux de l’égalité professionnelle femmes-hommes
+- Identifier les stéréotypes et les discriminations liés au genre
+- Connaître les obligations légales en matière d’égalité professionnelle
+- Savoir mettre en place des actions concrètes pour promouvoir l’égalité dans son entreprise
+&nbsp;
+### Contenu de la formation
+&nbsp;
+1. Introduction à l’égalité professionnelle femmes-hommes
+2. Les stéréotypes et les discriminations liés au genre
+3. Les obligations légales en matière d’égalité professionnelle
+4. Les actions concrètes pour promouvoir l’égalité dans son entreprise
+  `, image : "https://www.cercle-inclusion.com/wp-content/uploads/2025/12/egalite-pro.png" },
+        ],
+      },
+    },
+    include: {
+      formations: true,
     },
   })
 
@@ -112,6 +144,18 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
     }
   });
 
+  const marieFormatrice = await prisma.utilisateur.create({
+    data: {
+      nom: "Duponte",
+      prenom: "Marie",
+      email: "marie@formateur.com",
+      password: hashedPassword,
+      date_naissance: new Date("1975-07-02"),
+      type_utilisateur: "FORMATEUR",
+      formateur: { create: {} }
+    }
+  });
+
   const hashedPassword2 = await bcrypt.hash("admin", 10);
 
   // L'Administrateur
@@ -127,26 +171,37 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
     }
   });
 
-  const sessionSecours = await prisma.session.create({
+  const sessionInclusion = await prisma.session.create({
     data: {
-      date_deb: new Date("2024-06-01T09:00:00"),
-      date_fin: new Date("2024-06-01T17:00:00"),
+      date_deb: new Date("2024-06-01T12:00:00"),
+      date_fin: new Date("2024-06-01T15:00:00"),
       presentiel: true,
-      lieu: "Centre de secours Vitry",
-      idFormation: themaSante.formations[0].id_formation,
+      lieu: "Centre de Vitry",
+      idFormation: themaInclusion.formations[0].id_formation,
       idFormateur: jeanFormateur.id_utilisateur
     }
   });
 
 
-    const sessionSecours2 = await prisma.session.create({
+    const sessionInclusion2 = await prisma.session.create({
     data: {
       date_deb: new Date("2025-06-01T09:00:00"),
-      date_fin: new Date("2025-06-01T17:00:00"),
+      date_fin: new Date("2025-06-01T10:00:00"),
       presentiel: true,
-      lieu: "Centre de secours Ivry",
-      idFormation: themaSante.formations[1].id_formation,
+      lieu: "Gymnase Ivry",
+      idFormation: themaInclusion.formations[1].id_formation,
       idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  const sessionEgalite = await prisma.session.create({
+    data: {
+      date_deb: new Date("2025-06-01T10:00:00"),
+      date_fin: new Date("2025-06-01T11:00:00"),
+      presentiel: true,
+      lieu: "Centre de secours Paris",
+      idFormation: themaEgalite.formations[0].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
     }
   });
 
@@ -154,7 +209,7 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
     data: {
       statut: true,
       idBenevole: oceane.id_utilisateur,
-      idSession: sessionSecours.id_session
+      idSession: sessionInclusion.id_session
     }
   });
 
@@ -162,10 +217,94 @@ Tout d’abord, les participants apprennent à reconnaître les signes de détre
     data: {
       statut: false,
       idBenevole: oceane.id_utilisateur,
-      idSession: sessionSecours2.id_session
+      idSession: sessionInclusion2.id_session
     }
   });
 
+  await prisma.suivi.create({
+    data: {
+      statut: true,
+      idBenevole: oceane.id_utilisateur,
+      idSession: sessionEgalite.id_session
+    }
+  });
+
+  // --- THÉMATIQUE ENVIRONNEMENT (3 formations, 1 suivie) ---
+  const themaEnvironnement = await prisma.thematique.create({
+    data: {
+      title: "Environnement",
+      color: "#E2FBE2",
+      colorTitle: "#4CAF50",
+      description: "Agissez pour la planète et comprenez les enjeux climatiques actuels.",
+      image: "https://www.vie-publique.fr/files/styles/twitter_image/public/en_bref/image_principale/protection_environnement_constitution_valeur_objectif_219848647_Drupal.jpg?itok=mxgKvIRb",
+      formations: {
+        create: [
+          { title: "Fresque du Climat", numero: 1, duration: 3, presentiel: true, description: "Un atelier ludique pour comprendre les causes et conséquences du dérèglement climatique.", image: "https://www.leparisien.fr/resizer/i-wV5gQIiGQNDoRqEgv9BY5u6i0=/932x582/cloudfront-eu-central-1.images.arcpublishing.com/leparisien/VWMGKFFL6ZDLLNFO5EGVC5SWYQ.jpg" },
+          { title: "Zéro Déchet au quotidien", numero: 2, duration: 2, presentiel: false, description: "Apprenez à réduire votre impact environnemental par des gestes simples.", image: "https://img-3.journaldesfemmes.fr/9-KrGwaMJIDIQ4MB535q_v3Zq1U=/1500x/smart/bc7398c0285d48bcab88caf276192457/ccmcms-jdf/39954524.jpg" },
+          { title: "Biodiversité locale", numero: 3, duration: 4, presentiel: true, description: "Observer et protéger la faune et la flore de votre région.", image: "https://www.parc-alpilles.fr/wp-content/uploads/sites/2/2020/05/31-mai-sortie-Gue%CC%82piers-c-Yakov-stock.adobe_.com_-1200x630.jpeg" },
+        ],
+      },
+    },
+    include: { formations: true },
+  });
+
+  // --- THÉMATIQUE CITOYENNETÉ (2 formations, 1 suivie) ---
+  const themaCitoyennete = await prisma.thematique.create({
+    data: {
+      title: "Citoyenneté",
+      color: "#FFF4E5",
+      colorTitle: "#FF9800",
+      description: "Découvrez vos droits, vos devoirs et comment vous impliquer dans la vie de la cité.",
+      image: "https://www.solidarite-laique.org/wp-content/uploads/2021/02/shutterstock_1142639114-1024x683.jpg",
+      formations: {
+        create: [
+          { title: "Valeurs de la République", numero: 1, duration: 2, presentiel: true, description: "Comprendre la laïcité et les fondements de notre démocratie.", image: "https://lelephant-larevue.fr/wp-content/uploads/2014/04/La-libert%C3%A9-e1490865010318.jpg" },
+          { title: "Engagement Bénévole", numero: 2, duration: 1, presentiel: false, description: "Comment structurer son projet associatif et mobiliser des ressources.", image: "https://infolocale.actu.fr/blog/wp-content/uploads/2025/05/RE-23.png" },
+        ],
+      },
+    },
+    include: { formations: true },
+  });
+
+  // --- CRÉATION DES SESSIONS ---
+  const sessionClimat = await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-05-10T14:00:00"),
+      date_fin: new Date("2026-05-10T17:00:00"),
+      presentiel: true,
+      lieu: "Maison des Associations, Vitry",
+      idFormation: themaEnvironnement.formations[0].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+
+  const sessionRepublique = await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-06-15T09:00:00"),
+      date_fin: new Date("2026-06-15T12:00:00"),
+      presentiel: true,
+      lieu: "Hôtel de Ville, Ivry",
+      idFormation: themaCitoyennete.formations[0].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // --- CRÉATION DES SUIVIS POUR OCÉANE (Statut : false) ---
+  await prisma.suivi.create({
+    data: {
+      statut: false, // Pas encore validé / en cours
+      idBenevole: oceane.id_utilisateur,
+      idSession: sessionClimat.id_session
+    }
+  });
+
+  await prisma.suivi.create({
+    data: {
+      statut: false, // Pas encore validé / en cours
+      idBenevole: oceane.id_utilisateur,
+      idSession: sessionRepublique.id_session
+    }
+  });
   }
 
 main()
