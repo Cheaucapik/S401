@@ -42,7 +42,7 @@ export async function POST(request: Request) {
                 id: user.id_utilisateur,
                 nom: user.nom,
                 prenom: user.prenom,
-                type: user.type_utilisateur
+                role: user.type_utilisateur
             }
         });
 

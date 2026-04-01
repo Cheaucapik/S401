@@ -11,22 +11,12 @@ import Logout from '../components/Logout'
 const Settings = ({ navigation }:any) => {
   const insets = useSafeAreaInsets();
 
-  const {setUserToken} = useAuth();
+  const { logout } = useAuth();
 
-  const logout = async () => {
-    try{
-        await AsyncStorage.removeItem('userToken');
-        await AsyncStorage.removeItem('userData');
-      }
-      catch(error){
-        console.error("Erreur lors de la suppression des données de l'utilisateur :", error);
-    }
-    finally{
-      setUserToken(null);
-
-      console.log("Déconnexion réussie");
-    }
-  }
+const handleLogout = async () => {
+    await logout();
+    console.log("Déconnexion réussie");
+  };
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -72,7 +62,7 @@ const Settings = ({ navigation }:any) => {
     </LinearGradient>
 
     <View style={{flex: 1, backgroundColor: Colors.white, padding: 20, justifyContent: 'flex-end'}}>
-      <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom : 40}} activeOpacity={1} onPress={() => logout()}>
+      <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom : 40}} activeOpacity={1} onPress={() => handleLogout()}>
         <Logout/>
         <Text style={{color: Colors.primary_blue, fontSize: 16, fontWeight: 'bold', marginLeft: 10}}>Se déconnecter</Text>
       </TouchableOpacity>

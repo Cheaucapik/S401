@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert} from 'react-native'
 import React from 'react'
 import LinearGradient from 'react-native-linear-gradient'
 import {Colors} from '../constants/Colors' 
@@ -10,8 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../context/AuthContext'
 import { ENDPOINTS } from '../config/api';
 
-const Login = ({navigation} : any) => {
-    const { setUserToken, setUserType } = useAuth();
+const Login = ({ navigation }: any) => {
+  const { login } = useAuth(); // On récupère la fonction login du context
 
     const [email, setEmail] = useState('');
     const [mdp, setMdp] = useState('');
@@ -19,37 +19,30 @@ const Login = ({navigation} : any) => {
     const [rememberMe, setRememberMe] = useState(false);
 
     const handleLogin = async () => {
-        try{
-            const response = await fetch(`${ENDPOINTS.LOGIN}`, {
-                method : 'POST',
-                headers : {
-                    'Content-Type': 'application/json',
-                },
-                body : JSON.stringify({
-                    email : email.trim(),
-                    password : mdp,
-                }),
-            });
+    try {
+        const response = await fetch(`${ENDPOINTS.LOGIN}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            email: email.trim(),
+            password: mdp,
+        }),
+        });
 
-            const data = await response.json();
-            if(response.ok && data.token){
-                console.log("Réponse du serveur :", data);
+        const data = await response.json();
 
-                if(rememberMe){
-                    await AsyncStorage.setItem('userToken', data.token);
-                }
-
-                await AsyncStorage.setItem('userData', JSON.stringify(data.user));
-                setUserToken(data.token);
-
-                console.log("Connexion réussie")
-            }
-            else console.log("Erreur", data.error);
+        if (response.ok && data.token) {
+        // IMPORTANT : On passe data.token et data.user à la fonction centralisée
+        await login(data.token, data.user);
+        console.log("Connexion réussie en tant que :", data.user.role);
+        } else {
+        console.log("Erreur :", data.error);
+        Alert.alert(data.error);
         }
-        catch(error){
-            console.log(error);
-        }
+    } catch (error) {
+        console.log("Erreur réseau :", error);
     }
+  };
 
     return (
     <LinearGradient  style={styles.container}
