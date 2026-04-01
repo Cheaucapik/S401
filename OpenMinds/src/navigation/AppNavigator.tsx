@@ -8,9 +8,11 @@ import { ActivityIndicator } from 'react-native';
 import Login from '../screens/Login'
 import { useAuth } from '../context/AuthContext';
 import Signup from '../screens/Signup';
-import RootNavigatorAdmin from './RootNavigatorAdmin'
-import RootNavigatorFormateur from './RootNavigatorFormateur'
-import {Colors} from '../constants/Colors'
+import RootNavigatorAdmin from './RootNavigatorAdmin';
+import RootNavigatorFormateur from './RootNavigatorFormateur';
+import {Colors} from '../constants/Colors';
+import EditProfile from '../screens/EditProfile';
+import ChangePassword from '../screens/ChangePassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +37,9 @@ const AppNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="AdminRoot" component={RootNavigatorAdmin} />
+          <Stack.Screen name="Profile" component={Settings}/>
+          <Stack.Screen name="EditProfile" component={EditProfile}/>
+          <Stack.Screen name="ChangePassword" component={ChangePassword}/>
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -45,6 +50,9 @@ const AppNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="FormateurRoot" component={RootNavigatorFormateur} />
+          <Stack.Screen name="Profile" component={Settings}/>
+          <Stack.Screen name="EditProfile" component={EditProfile}/>
+        <Stack.Screen name="ChangePassword" component={ChangePassword}/>
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -62,7 +70,6 @@ const AppNavigator = () => {
             headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
             headerTintColor: Colors.primary_blue,
             headerShadowVisible: false,}} />
-        <Stack.Screen name="Profile" component={Settings}/>
         <Stack.Screen name="Formations" component={Formations}
         options={{
             headerTitle: "Formations",
@@ -71,6 +78,9 @@ const AppNavigator = () => {
             headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
             headerTintColor: Colors.primary_blue,
             headerShadowVisible: false,}} />
+        <Stack.Screen name="Profile" component={Settings}/>
+        <Stack.Screen name="EditProfile" component={EditProfile}/>
+        <Stack.Screen name="ChangePassword" component={ChangePassword}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

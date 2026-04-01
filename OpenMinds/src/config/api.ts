@@ -10,5 +10,7 @@ export const ENDPOINTS = {
     FORMATIONS : `${API_BASE_URL}/formations`,
     THEMATIQUES : `${API_BASE_URL}/thematiques`,
     SESSIONS : `${API_BASE_URL}/session`,
-    PARTICIPANTS : `${API_BASE_URL}/participants`
+    PARTICIPANTS : `${API_BASE_URL}/participants`,
+    UPDATE_USER: `${API_BASE_URL}/user`, 
+    UPDATE_PASSWORD: `${API_BASE_URL}/password`,
 };
