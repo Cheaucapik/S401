@@ -23,6 +23,14 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: "L'ancien mot de passe est incorrect" }, { status: 401 });
         }
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(newPassword)) {
+            return NextResponse.json({ 
+                error: "Le mot de passe doit contenir 8 caractères, une majuscule, un chiffre et un caractère spécial." 
+            }, { status: 400 });
+        }
+
         // 3. Hasher le nouveau mot de passe
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 

@@ -1,12 +1,25 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { unlink } from "fs/promises"; 
+import { join } from "path";
+import prisma from "@/lib/prisma"; 
 
 export async function PUT(request: Request) {
     try {
         const body = await request.json();
         const { id, prenom, nom, email, date_naissance, pfp } = body;
 
-        // Mise à jour dans la base de données via Prisma
+        if (pfp === null) {
+        const currentUser = await prisma.utilisateur.findUnique({
+            where: { id_utilisateur: Number(id) },
+            select: { pfp: true }
+        });
+
+        if (currentUser?.pfp) {
+            const pathToDelete = join(process.cwd(), "public", currentUser.pfp);
+            try { await unlink(pathToDelete); } catch (e) {}
+        }
+    }
+
         const updatedUser = await prisma.utilisateur.update({
             where: { id_utilisateur: id },
             data: {
