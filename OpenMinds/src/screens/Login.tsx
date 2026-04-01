@@ -6,12 +6,11 @@ import Email from '../components/Email'
 import Lock from '../components/Lock'
 import {useState} from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../context/AuthContext'
 import { ENDPOINTS } from '../config/api';
 
 const Login = ({ navigation }: any) => {
-  const { login } = useAuth();
+    const { login } = useAuth();
 
     const [email, setEmail] = useState('');
     const [mdp, setMdp] = useState('');

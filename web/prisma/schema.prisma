@@ -65,8 +65,6 @@ model Benevole {
   id_benevole     Int         @id
   utilisateur     Utilisateur @relation(fields: [id_benevole], references: [id_utilisateur])
 
-  isFirstLogin   Boolean @default(true)
-
   suivis Suivi[]
 }
 
