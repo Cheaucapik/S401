@@ -5,24 +5,27 @@ import { Colors } from '../constants/Colors'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Loupe from '../components/Loupe'
 import MascotteFormat from '../components/MascotteForma'
-import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import {useAuth} from '../context/AuthContext';
+import Avatar from '../components/Avatar';
 
 const Thematiques = ({navigation}:any) => {
     const insets = useSafeAreaInsets();
+
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
     const [formationsContinuer, setFormationsContinuer] = useState<any[]>([]);
     const [formationsNonCommence, setFormationsNonCommence] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [allFormations, setAllFormations] = useState(false);
+    const { user } = useAuth();
 
     const chargerThematiques = async () => {
 
-        const user = await AsyncStorage.getItem('userData');
-        const userId = user ? JSON.parse(user).id : null;
+        const user2 = await AsyncStorage.getItem('userData');
+        const userId = user2 ? JSON.parse(user2).id : null;
 
         const [responseThema, responseThemaContinuer, responseThemaNonCommence] = await Promise.all([
             fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`),
@@ -56,6 +59,7 @@ const Thematiques = ({navigation}:any) => {
     const handleSearch = (query : string) => {
         setSearchQuery(query);
         if(query === ''){
+            setFilteredData(formations);
             setAllFormations(false);
             return;
         }
@@ -74,7 +78,7 @@ const Thematiques = ({navigation}:any) => {
                     <View style={[{ marginTop: insets.top, marginBottom : 20 }, styles.header]}>
                         <Text style={styles.title}>Thématiques</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                            <Account />
+                            <Avatar uri={user?.pfp} size={60} />
                         </TouchableOpacity>
                     </View>
                     <MascotteFormat style={styles.mascotte} />
@@ -201,6 +205,13 @@ const styles = StyleSheet.create({
         color: 'gray',
         margin: 20,
     },  
+    avatarPlaceholder: { 
+        width: 60, 
+        height: 60, 
+        borderRadius: 100, 
+        backgroundColor: '#CCC',  
+        overflow: 'hidden',
+    },
 })
 
 export default Thematiques

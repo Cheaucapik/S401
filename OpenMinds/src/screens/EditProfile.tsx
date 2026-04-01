@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Image, Modal } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Colors } from '../constants/Colors'
 import LinearGradient from 'react-native-linear-gradient'
@@ -11,9 +11,15 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import Email from '../components/Email'
 import DownloadIcon from '../components/DownloadIcon'
 import { ENDPOINTS } from '../config/api'
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
+import Avatar from '../components/Avatar';
+import {useAuth} from '../context/AuthContext'
+import Gallery from '../components/Gallery'
+import Trash from '../components/Trash'
 
 const EditProfile = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
+    const { user, updateUser } = useAuth();
 
     const [prenom, setPrenom] = useState('');
     const [nom, setNom] = useState('');
@@ -23,7 +29,39 @@ const EditProfile = ({ navigation }: any) => {
     const [show, setShow] = useState(false);
     const [userId, setUserId] = useState(null);
 
-    // Charger les data au montage du composant
+    const [visible, setVisible] = useState(false);
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const [pfpExistante, setPfpExistante] = useState<string | null>(null);
+
+    const pickImage = () => {
+
+        const options: any = { 
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+        quality: 0.7,
+        };
+
+        setVisible(false);
+        launchImageLibrary(options, (response: ImagePickerResponse) => {
+        if (response.didCancel) {
+            console.log('Utilisateur a annulé');
+        } else if (response.errorMessage) {
+            console.log('Erreur ImagePicker: ', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+            const uri = response.assets[0].uri;
+            setImageUri(uri || null);
+        }
+        });
+    }
+
+    const removePhoto = () => {
+        setVisible(false);
+        setImageUri(null);
+        setPfpExistante(null);
+    };
+
     useEffect(() => {
         const loadUserData = async () => {
             try {
@@ -34,6 +72,7 @@ const EditProfile = ({ navigation }: any) => {
                     setPrenom(user.prenom || '');
                     setNom(user.nom || '');
                     setEmail(user.email || '');
+                    setPfpExistante(user.pfp || null);
 
                     if (user.date_naissance) {
                         const d = new Date(user.date_naissance);
@@ -57,11 +96,34 @@ const EditProfile = ({ navigation }: any) => {
                 return;
             }
 
+            let finalPfp = pfpExistante;
+
+            if (imageUri) {
+            const formData = new FormData();
+            formData.append('file', {
+                uri: imageUri,
+                name: 'upload.jpg',
+                type: 'image/jpeg',
+            } as any);
+            formData.append('userId', userId);
+
+            const uploadRes = await fetch(ENDPOINTS.UPLOAD_PFP, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            const uploadData = await uploadRes.json();
+            if (uploadRes.ok) {
+                finalPfp = uploadData.pfp;
+            }
+        }
+
             const bodyUpdate = {
                 id: userId,
                 prenom,
                 nom,
                 email,
+                pfp: finalPfp,
                 date_naissance: date.toISOString(),
             };
 
@@ -74,8 +136,7 @@ const EditProfile = ({ navigation }: any) => {
             const data = await response.json();
 
             if (response.ok) {
-                // On met à jour l'AsyncStorage pour que les changements soient persistants
-                await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+                updateUser(data.user);
                 Alert.alert("Succès", "Profil mis à jour !");
                 navigation.goBack();
             } else {
@@ -108,7 +169,13 @@ const EditProfile = ({ navigation }: any) => {
                         <ArrowLeft />
                     </TouchableOpacity>
                 </View>
-                <View style={styles.avatarPlaceholder} />
+                <TouchableOpacity onPress={ () => setVisible(true)} style={styles.avatarPlaceholder}>
+                    {imageUri ? (
+                        <Image source={{ uri: imageUri }} style={styles.avatarPlaceholder} />
+                    ) : (
+                        <Avatar uri={pfpExistante} size={120} />
+                    )}
+                </TouchableOpacity>
                 <Text style={styles.headerTitle}>{prenom} {nom}</Text>
                 <Text style={styles.headerSubtitle}>{email}</Text>
             </LinearGradient>
@@ -145,6 +212,32 @@ const EditProfile = ({ navigation }: any) => {
                 {show && <DateTimePicker value={date} mode="date" display="spinner" onChange={onChange} maximumDate={new Date()} />}
             </View>
 
+            <Modal
+                transparent={true}
+                visible={visible}
+                animationType="fade"
+                >
+                    <TouchableOpacity 
+                        style={styles.modalOverlay} 
+                        activeOpacity={1} 
+                        onPress={() => setVisible(false)}
+                    >
+                    <View style={{alignItems : 'center', backgroundColor : Colors.white, padding : 30, borderRadius : 30}}>
+                        <Text style={{fontSize : 25, fontWeight : 'bold', marginBottom : 20}}>Photo de profil</Text>
+                        <View style={{flexDirection : 'row', gap : 50}}>
+                            <TouchableOpacity onPress={pickImage} style={styles.optionPhoto}>
+                                <Gallery/>
+                                <Text>Gallerie</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={removePhoto} style={styles.optionPhoto}>
+                                <Trash/>
+                                <Text>Supprimer</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    </TouchableOpacity>
+                </Modal>
+
             <View style={{ marginHorizontal: 30, marginTop: 40 }}>
                 <TouchableOpacity style={styles.saveButton} activeOpacity={0.8} onPress={handleSave}>
                     <DownloadIcon />
@@ -152,13 +245,14 @@ const EditProfile = ({ navigation }: any) => {
                 </TouchableOpacity>
             </View>
         </View>
+        
     );
 };
 
 const styles = StyleSheet.create({
     container: { borderBottomRightRadius: 30, borderBottomLeftRadius: 30, paddingBottom: 30, alignItems: 'center' },
     header: { width: '100%', paddingHorizontal: 20 },
-    avatarPlaceholder: { marginTop: 10, width: 120, height: 120, borderRadius: 60, backgroundColor: '#CCC' },
+    avatarPlaceholder: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#CCC', overflow: 'hidden',},
     headerTitle: { color: '#FFF', fontSize: 25, fontWeight: 'bold', marginTop: 10 },
     headerSubtitle: { color: '#FFF', fontSize: 16, opacity: 0.8 },
     formContainer: { marginTop: 30, paddingHorizontal: 25, gap: 20 },
@@ -167,6 +261,13 @@ const styles = StyleSheet.create({
     input: { flex: 1, marginLeft: 10, color: '#424242' },
     saveButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.light_blue, borderRadius: 30, paddingVertical: 15, gap: 15 },
     saveButtonText: { color: "#5955B3", fontSize: 18, fontWeight: 'bold' },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center', 
+        alignItems: 'center',
+    },
+    optionPhoto : {gap : 10, alignItems : 'center', backgroundColor : Colors.light_gray, width : 120, height : 120, borderRadius : 30, justifyContent : 'center'}
 });
 
 export default EditProfile;

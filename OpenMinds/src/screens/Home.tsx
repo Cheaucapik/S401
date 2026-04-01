@@ -5,11 +5,12 @@ import { Colors } from '../constants/Colors'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Loupe from '../components/Loupe'
 import MascotteExplorer from '../components/MascotteExplorer'
-import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ProgressionTemplate from '../components/ProgressionTemplate'
+import { useAuth } from '../context/AuthContext'
+import Avatar from '../components/Avatar';
 
 const Home = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
@@ -17,10 +18,11 @@ const Home = ({ navigation }: any) => {
     const [formations, setFormations] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [formationsContinuer, setFormationsContinuer] = useState<any[]>([]);
+    const { user } = useAuth();
 
     const chargerThematiques = async () => {
-        const user = await AsyncStorage.getItem('userData');
-        const userId = user ? JSON.parse(user).id : null;
+        const user2 = await AsyncStorage.getItem('userData');
+        const userId = user2 ? JSON.parse(user2).id : null;
         const [response, continuationResponse] = await Promise.all([
             fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`),
             fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=continuer`)
@@ -47,7 +49,7 @@ const Home = ({ navigation }: any) => {
         : [
             { title: 'Ma progression', data: [formationsContinuer.filter(item => item.progression < item._count.formations)], type: 'PROGRESSION' },
             { title: 'Mon Calendrier', data: [null], type: 'CALENDAR' }
-          ];
+        ];
 
     return (
         <SectionList
@@ -65,7 +67,7 @@ const Home = ({ navigation }: any) => {
                     <View style={[{ marginTop: insets.top, marginBottom: 20 }, styles.header]}>
                         <Text style={styles.title}>Explorer</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                            <Account />
+                            <Avatar uri={user?.pfp} size={60} />
                         </TouchableOpacity>
                     </View>
                     <MascotteExplorer style={styles.mascotte} />
@@ -91,23 +93,17 @@ const Home = ({ navigation }: any) => {
             renderItem={({ item, section }) => {
                 if (section.type === 'SEARCH') {
                     return (
-                        <FlatList
-                data={filteredData}
-                keyExtractor={(item) => item.id_thematique.toString()}
-                renderItem={({ item } : { item: any }) => (
-                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
-                )}
-
-                contentContainerStyle={{ flexGrow: 1 }}
-                
-                ListEmptyComponent={
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{ fontSize: 18, color: 'gray' }}>Aucune thématique trouvée</Text>
-                    </View>
-                }
-
-                persistentScrollbar={false}
-                bounces={true} />
+                        <ThematiqueTemplate 
+                            color={item.color} 
+                            colorTitle={item.colorTitle} 
+                            title={item.title} 
+                            duration={item.totalDuration} 
+                            total={item._count.formations} 
+                            image={item.image} 
+                            description={item.description} 
+                            id_thematique={item.id_thematique} 
+                            progression={item.progression} 
+                        />
                     );
                 }
 

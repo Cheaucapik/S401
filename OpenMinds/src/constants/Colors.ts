@@ -14,5 +14,6 @@ export const Colors = {
   grey : '#9F9A9A',
   pink : '#C87CE9',
   font : '#4D4186',
-  off_white : '#FFFCFC'
+  off_white : '#FFFCFC',
+  light_gray : '#D9D9D9'
 };

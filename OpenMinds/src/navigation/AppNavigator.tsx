@@ -17,7 +17,7 @@ import ChangePassword from '../screens/ChangePassword';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  const { token, role, isLoading } = useAuth();
+  const { token, user, isLoading } = useAuth();
 
   if (isLoading) return <ActivityIndicator size="large" style={{flex:1}} />;
 
@@ -32,7 +32,7 @@ const AppNavigator = () => {
     );
   }
 
-  if (role === "ADMINISTRATEUR") {
+  if (user?.role === "ADMINISTRATEUR") {
     return (
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -45,7 +45,7 @@ const AppNavigator = () => {
     );
   }
 
-  else if (role === "FORMATEUR") {
+  else if (user?.role === "FORMATEUR") {
     return (
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>

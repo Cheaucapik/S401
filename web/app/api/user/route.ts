@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 export async function PUT(request: Request) {
     try {
         const body = await request.json();
-        const { id, prenom, nom, email, date_naissance } = body;
+        const { id, prenom, nom, email, date_naissance, pfp } = body;
 
         // Mise à jour dans la base de données via Prisma
         const updatedUser = await prisma.utilisateur.update({
@@ -14,6 +14,7 @@ export async function PUT(request: Request) {
                 nom: nom,
                 email: email.toLowerCase(),
                 date_naissance: new Date(date_naissance),
+                pfp: pfp,
             },
         });
 
@@ -24,7 +25,8 @@ export async function PUT(request: Request) {
                 prenom: updatedUser.prenom,
                 nom: updatedUser.nom,
                 email: updatedUser.email,
-                date_naissance: updatedUser.date_naissance
+                date_naissance: updatedUser.date_naissance,
+                pfp : updatedUser.pfp
             } 
         });
     } catch (error) {

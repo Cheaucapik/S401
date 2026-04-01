@@ -8,14 +8,18 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { email, password } = body;
 
-        const user = await prisma.utilisateur.findUnique({
-            where: { email: email.toLowerCase() }
-        });
+        if(!password || !email){
+            return NextResponse.json({ error: "Paramètres manquants" }, { status: 400 });
+        }
 
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if(!regexEmail.test(email)) {
             return NextResponse.json({ error: "Email invalide" }, { status: 400 });
         }
+
+        const user = await prisma.utilisateur.findUnique({
+            where: { email: email.toLowerCase() }
+        });
 
         if (!user) {
             return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 401 });
@@ -43,6 +47,7 @@ export async function POST(request: Request) {
                 role: user.type_utilisateur,
                 email: user.email,
                 date_naissance : user.date_naissance,
+                pfp : user.pfp,
             }
         });
 

@@ -55,6 +55,7 @@ model Utilisateur {
   password        String
   date_naissance  DateTime
   type_utilisateur String     @default("BENEVOLE")
+  pfp             String?
 
   benevole Benevole?
   administrateur Administrateur?

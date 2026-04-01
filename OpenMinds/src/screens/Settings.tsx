@@ -1,45 +1,23 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
-import React, { useState, useEffect } from 'react' 
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { Colors } from '../constants/Colors'
 import LinearGradient from 'react-native-linear-gradient'
 import ArrowLeft from '../components/ArrowLeft'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useAuth } from '../context/AuthContext'
 import Logout from '../components/Logout'
 import Pencil from '../components/Pencil'
 import KeyIcon from '../components/KeyIcon'
+import Avatar from '../components/Avatar';
 
 const Settings = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
 
-  const { logout } = useAuth();
+  const { logout, user} = useAuth();
 
 const handleLogout = async () => {
     await logout();
     console.log("Déconnexion réussie");
   };
-
-  const [prenom, setPrenom] = useState('');
-  const [nom, setNom] = useState('');
-  const [email, setEmail] = useState('');
-
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userData = await AsyncStorage.getItem('userData');
-        if (userData) {
-          const user = JSON.parse(userData);
-          setPrenom(user.prenom || '');
-          setNom(user.nom || '');
-          setEmail(user.email || '');
-        }
-      } catch (error) {
-        console.error("Erreur chargement settings :", error);
-      }
-    };
-    loadUserData();
-  }, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.white }}>
@@ -55,9 +33,11 @@ const handleLogout = async () => {
             <ArrowLeft />
           </TouchableOpacity>
         </View>
-        <View style={styles.avatarPlaceholder} />
-        <Text style={styles.headerTitle}>{prenom} {nom}</Text>
-        <Text style={styles.headerSubtitle}>{email}</Text>
+        <View style={styles.avatarPlaceholder}>
+          <Avatar uri={user?.pfp} size={120} />
+        </View>
+        <Text style={styles.headerTitle}>{user?.prenom} {user?.nom}</Text>
+        <Text style={styles.headerSubtitle}>{user?.email}</Text>
       </LinearGradient>
 
       {}
@@ -111,11 +91,11 @@ const styles = StyleSheet.create({
   header: { width: '100%', paddingHorizontal: 20 },
   avatarPlaceholder: { 
     marginTop: 10, 
-    width: 80, 
-    height: 80, 
-    borderRadius: 40, 
-    backgroundColor: '#CCC', 
-    opacity: 0.5 
+    width: 120, 
+    height: 120, 
+    borderRadius: 100, 
+    backgroundColor: '#CCC',  
+    overflow: 'hidden',
   },
   headerTitle: { color: '#FFF', fontSize: 22, fontWeight: 'bold', marginTop: 10 },
   headerSubtitle: { color: '#FFF', fontSize: 14, opacity: 0.8 },

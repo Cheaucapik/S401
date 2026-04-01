@@ -13,4 +13,6 @@ export const ENDPOINTS = {
     PARTICIPANTS : `${API_BASE_URL}/participants`,
     UPDATE_USER: `${API_BASE_URL}/user`, 
     UPDATE_PASSWORD: `${API_BASE_URL}/password`,
+    UPLOAD_PFP : `${API_BASE_URL}/upload_pfp`,
+    API_URL : `http://${DEV_IP}:${PORT}`
 };
