@@ -9,6 +9,8 @@ import { ActivityIndicator } from 'react-native';
 import Login from '../screens/Login'
 import { useAuth } from '../context/AuthContext';
 import Signup from '../screens/Signup';
+import EditProfile from '../screens/EditProfile';
+import ChangePassword from '../screens/ChangePassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,6 +48,9 @@ const AppNavigator = () => {
             headerTintColor: Colors.primary_blue,
             headerShadowVisible: false,}} />
         <Stack.Screen name="Profile" component={Settings}/>
+        <Stack.Screen name="EditProfile" component={EditProfile}/>
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
+        
         </>)}
       </Stack.Navigator>
       </NavigationContainer>

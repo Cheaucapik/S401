@@ -1,30 +1,30 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react' 
 import { Colors } from '../constants/Colors'
 import LinearGradient from 'react-native-linear-gradient'
 import ArrowLeft from '../components/ArrowLeft'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import {useAuth} from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext'
 import Logout from '../components/Logout'
+import Pencil from '../components/Pencil'
+import KeyIcon from '../components/KeyIcon'
 
-const Settings = ({ navigation }:any) => {
+const Settings = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
-
-  const {setUserToken} = useAuth();
+  const { setUserToken } = useAuth();
+  const [prenom, setPrenom] = useState('');
+  const [nom, setNom] = useState('');
+  const [email, setEmail] = useState('');
 
   const logout = async () => {
-    try{
-        await AsyncStorage.removeItem('userToken');
-        await AsyncStorage.removeItem('userData');
-      }
-      catch(error){
-        console.error("Erreur lors de la suppression des données de l'utilisateur :", error);
-    }
-    finally{
+    try {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userData');
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error);
+    } finally {
       setUserToken(null);
-
-      console.log("Déconnexion réussie");
     }
   }
 
@@ -34,76 +34,114 @@ const Settings = ({ navigation }:any) => {
         const userData = await AsyncStorage.getItem('userData');
         if (userData) {
           const user = JSON.parse(userData);
-          console.log("Données de l'utilisateur :", user);
-          return user;
+          setPrenom(user.prenom || '');
+          setNom(user.nom || '');
+          setEmail(user.email || '');
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des données de l'utilisateur :", error);
+        console.error("Erreur chargement settings :", error);
       }
     };
     loadUserData();
-    }, []);
+  }, []);
 
   return (
-    <>
-    <LinearGradient style={styles.container}
-                colors={[Colors.purple, Colors.light_pink]} 
-                start={{ x: 0, y: 0 }} 
-                end={{ x: 0, y: 1 }}
-                >
-
-      <View style={[{marginTop:insets.top}, styles.header]}>
-        <View style={styles.sideContainer}>
+    <View style={{ flex: 1, backgroundColor: Colors.white }}>
+      {}
+      <LinearGradient
+        style={styles.container}
+        colors={[Colors.purple, Colors.light_pink]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      >
+        <View style={[{ marginTop: insets.top }, styles.header]}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ArrowLeft />
           </TouchableOpacity>
         </View>
+        <View style={styles.avatarPlaceholder} />
+        <Text style={styles.headerTitle}>{prenom} {nom}</Text>
+        <Text style={styles.headerSubtitle}>{email}</Text>
+      </LinearGradient>
 
-        <View style={styles.centerContainer}>
-          <Text style={styles.title}>Profile</Text>
-        </View>
+      {}
+      <View style={{ flex: 1, padding: 40, justifyContent: 'flex-start' }}>
+        
+        <TouchableOpacity 
+          style={styles.optionRow} 
+          activeOpacity={0.8} 
+          onPress={() => navigation.navigate("EditProfile")}
+        >
+          <View style={styles.iconCircle}>
+            <Pencil />
+          </View>
+          <Text style={styles.optionText}>Modifier profil</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.optionRow} 
+          activeOpacity={0.8} 
+          onPress={() => navigation.navigate("ChangePassword")}
+        >
+          <View style={styles.iconCircle}>
+            <KeyIcon />
+          </View>
+          <Text style={styles.optionText}>Changer de mot de passe</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.optionRow} 
+          activeOpacity={0.8} 
+          onPress={logout}
+        >
+          <View style={styles.iconCircle}>
+            <Logout />
+          </View>
+          <Text style={styles.optionText}>Se déconnecter</Text>
+        </TouchableOpacity>
+
       </View>
-
-      <View style={{alignSelf : 'center', marginTop : 10, padding : 60, borderRadius : 100, backgroundColor : Colors.grey}} >
-        <Image/>
-      </View>
-      <Text style={{color : Colors.white, fontSize : 25, textAlign: 'center', fontWeight: 'bold', marginTop: 10}}>Nom Prénom</Text>
-      <Text style={{color : Colors.grey, fontSize : 16, textAlign: 'center'}}>nom.prenom@mail.com</Text>
-    </LinearGradient>
-
-    <View style={{flex: 1, backgroundColor: Colors.white, padding: 20, justifyContent: 'flex-end'}}>
-      <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom : 40}} activeOpacity={1} onPress={() => logout()}>
-        <Logout/>
-        <Text style={{color: Colors.primary_blue, fontSize: 16, fontWeight: 'bold', marginLeft: 10}}>Se déconnecter</Text>
-      </TouchableOpacity>
     </View>
-    </>
   )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        borderBottomRightRadius: 30,
-        borderBottomLeftRadius: 30,
-        paddingBottom: 20,
-    },
-    title: { fontSize: 30, fontWeight: 'bold', color: Colors.white, marginLeft: 20, alignItems: 'center'},
-    header : {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 20,
-        marginRight: 20,
-    },
-    arrowLeft: {
-      alignItems: 'center',
-      },
-    sideContainer: {
-      flex: 1,
-      alignItems: 'flex-start',
+  container: { 
+    borderBottomRightRadius: 30, 
+    borderBottomLeftRadius: 30, 
+    paddingBottom: 30, 
+    alignItems: 'center' 
   },
-    centerContainer: {
-      flex: 5
-    },
-  })
+  header: { width: '100%', paddingHorizontal: 20 },
+  avatarPlaceholder: { 
+    marginTop: 10, 
+    width: 80, 
+    height: 80, 
+    borderRadius: 40, 
+    backgroundColor: '#CCC', 
+    opacity: 0.5 
+  },
+  headerTitle: { color: '#FFF', fontSize: 22, fontWeight: 'bold', marginTop: 10 },
+  headerSubtitle: { color: '#FFF', fontSize: 14, opacity: 0.8 },
+  optionRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 30 
+  },
+  iconCircle: { 
+    width: 50, 
+    height: 50, 
+    borderRadius: 25, 
+    backgroundColor: Colors.light_blue, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  optionText: { 
+    color: Colors.primary_blue, 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    marginLeft: 15 
+  },
+})
 
-export default Settings
+export default Settings;

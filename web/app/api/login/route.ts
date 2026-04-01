@@ -40,6 +40,8 @@ export async function POST(request: Request) {
                 id: user.id_utilisateur,
                 nom: user.nom,
                 prenom: user.prenom,
+                email: user.email, // j'ai ajouté ça
+                date_naissance : user.date_naissance,
                 type: user.type_utilisateur
             }
         });
