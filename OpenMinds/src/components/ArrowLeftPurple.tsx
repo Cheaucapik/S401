@@ -1,6 +1,7 @@
 import * as React from "react"
 import Svg, { Path } from "react-native-svg"
 import { Colors } from "../constants/Colors"
+//test de commit
 
 function SvgComponent(style:any) {
   return (
