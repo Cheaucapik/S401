@@ -31,69 +31,69 @@ return (
         }
     }}
     >
-      <Tab.Screen name="FormationsListe" 
-      component={Thematiques}
-      options={{
+    <Tab.Screen name="FormationsListe" 
+    component={Thematiques}
+    options={{
         tabBarButton: (props) => {
-          const { ref, ...rest } = props;
-          return (
+        const { ref, ...rest } = props;
+        return (
             <Pressable
-              {...rest}
-              android_ripple={{ color: 'transparent' }}
+            {...rest}
+            android_ripple={{ color: 'transparent' }}
             />
-          );
+        );
         },
         tabBarLabel: ({focused}) => <Text style={styles.text}>{focused ? "Formations" : ""}</Text>,
         tabBarIcon: ({focused}) => (
         <PastilleActive focused={focused}>
-           <FormationIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
+        <FormationIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
         </PastilleActive>
         )
-      }}
-      />
+    }}
+    />
 
 
-      <Tab.Screen name="ListeParticipants" component={ListeParticipants}
-      options={{
+    <Tab.Screen name="ListeParticipants" component={ListeParticipants}
+    options={{
         tabBarButton: (props) => {
-          const { ref, ...rest } = props;
-          return (
+        const { ref, ...rest } = props;
+        return (
             <Pressable
             {...rest}
             android_ripple={{ color: 'transparent' }}
             />
-          );
+        );
         },
         tabBarLabel: ({focused}) => <Text style={styles.text}>{focused ? "Home" : ""}</Text>,
         tabBarIcon: ({focused}) => (
         <PastilleActive focused={focused}>
-          <HomeIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
+        <HomeIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
         </PastilleActive>)
-      }} />
+    }} />
 
 
-      <Tab.Screen name="Settings" component={Settings}
-      options={{
+    <Tab.Screen name="Settings" component={Settings}
+    options={{
         tabBarLabel: ({focused}) => <Text style={styles.text}>{focused ? "Settings" : ""}</Text>,
         tabBarIcon: ({focused}) => (
         <PastilleActive focused={focused}>
-          <SettingsIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
+        <SettingsIcon color={focused ? Colors.purple : Colors.primary_blue} size={focused ? 40 : 30} />
         </PastilleActive>
         ),
         tabBarButton: (props) => {
-          const { ref, ...rest } = props;
-          return (
+        const { ref, ...rest } = props;
+        return (
             <Pressable
             {...rest}
             android_ripple={{ color: 'transparent' }}
             />
-          );
+        );
         }
-      }} 
-      
-      />
+    }} 
+    
+    />
     </Tab.Navigator>
-  );
+    );
 };
 
 const styles = StyleSheet.create({
