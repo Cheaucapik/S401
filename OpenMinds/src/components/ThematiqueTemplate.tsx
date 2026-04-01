@@ -8,7 +8,7 @@ interface FormationProps {
     color: string;
     colorTitle: string;
     title: string;
-    duration: string;
+    duration: number;
     total : number;
     image : string;
     id_thematique : number;
