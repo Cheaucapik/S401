@@ -11,7 +11,7 @@ import {useAuth} from '../context/AuthContext'
 import { ENDPOINTS } from '../config/api';
 
 const Login = ({ navigation }: any) => {
-  const { login } = useAuth(); // On récupère la fonction login du context
+  const { login } = useAuth();
 
     const [email, setEmail] = useState('');
     const [mdp, setMdp] = useState('');
@@ -32,7 +32,6 @@ const Login = ({ navigation }: any) => {
         const data = await response.json();
 
         if (response.ok && data.token) {
-        // IMPORTANT : On passe data.token et data.user à la fonction centralisée
         await login(data.token, data.user);
         console.log("Connexion réussie en tant que :", data.user.role);
         } else {

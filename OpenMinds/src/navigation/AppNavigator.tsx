@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import Signup from '../screens/Signup';
 import RootNavigatorAdmin from './RootNavigatorAdmin'
 import RootNavigatorFormateur from './RootNavigatorFormateur'
+import {Colors} from '../constants/Colors'
 
 const Stack = createNativeStackNavigator();
 
@@ -53,9 +54,23 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="BenevoleRoot" component={RootNavigator} />
-        <Stack.Screen name="Formations" component={Formations} />
-        <Stack.Screen name="FormationsDetails" component={FormationsDetails} />
-        <Stack.Screen name="Profile" component={Settings} />
+        <Stack.Screen name="FormationsDetails" component={FormationsDetails}
+        options={{
+            headerTitle: "Formations",
+            headerShown: true,
+            headerTitleAlign: 'center',
+            headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
+            headerTintColor: Colors.primary_blue,
+            headerShadowVisible: false,}} />
+        <Stack.Screen name="Profile" component={Settings}/>
+        <Stack.Screen name="Formations" component={Formations}
+        options={{
+            headerTitle: "Formations",
+            headerShown: true,
+            headerTitleAlign: 'center',
+            headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
+            headerTintColor: Colors.primary_blue,
+            headerShadowVisible: false,}} />
       </Stack.Navigator>
     </NavigationContainer>
   );

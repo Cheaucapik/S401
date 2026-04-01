@@ -112,27 +112,26 @@ const Thematiques = ({navigation}:any) => {
                 bounces={true}
             />) : (
                 <>
-                <View style={{ flex: 1 }}>
+                <View>
                     <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Continuer...</Text>
-                    <View style={{ flex: 1 }}>
                     <FlatList
                         data={formationsContinuer.filter(item => item.progression < item._count.formations)}
                         keyExtractor={(item) => item.id_thematique.toString()}
                         ListEmptyComponent={
                             <Text style={styles.textAucun}>Vous n'avez commencé aucune formation</Text>
                         }
+                        style={{maxHeight : 200}}
                         renderItem={({ item } : { item: any }) => (
                             <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
                         )}
                         />
-                    </View>
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={{flex : 1}}>
                     <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20, marginTop : 20 }}>Découvrir</Text>
-                    <View style={{ flex: 1 }}>
                     <FlatList
                         data={formationsNonCommence}
                         keyExtractor={(item) => item.id_thematique.toString()}
+                        style={{maxHeight : '100%'}}
                         ListEmptyComponent={
                             <Text style={styles.textAucun}>Vous avez tout découvert, restez en alerte pour les nouvelles formations !</Text>
                         }
@@ -141,7 +140,6 @@ const Thematiques = ({navigation}:any) => {
                         )}
                         />
                     </View>
-                </View>
                 <TouchableOpacity 
                     style={{alignSelf: 'flex-end', marginVertical: 20, backgroundColor: Colors.grey, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginRight: 20}} 
                     onPress={() => setAllFormations(true)}>
