@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, StatusBar, TouchableOpacity, SafeAreaView } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-// L'IMPORT MAGIQUE DE TA VRAIE MASCOTTE !
-import MascotteForma from '../../components/MascotteForma';
+import {
+  View, Text, StyleSheet, ActivityIndicator,
+  StatusBar, TouchableOpacity, SafeAreaView, Image, ScrollView
+} from 'react-native';
 import { ENDPOINTS } from '../../config/api';
 
 interface Participant {
@@ -13,11 +13,40 @@ interface Participant {
   statut_presence: boolean;
 }
 
-export default function ListeParticipants() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [loading, setLoading] = useState(true);
+interface SessionInfo {
+  date_deb: string;
+  date_fin: string;
+  presentiel: boolean;
+  lieu: string;
+  formation: {
+    title: string;
+    duration: number;
+    description: string;
+    image: string;
+  };
+}
 
-  const API_URL = `${ENDPOINTS.PARTICIPANTS}?sessionId=1`;
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+const formatDuration = (dateDebStr: string, dateFinStr: string) => {
+  const deb = new Date(dateDebStr);
+  const fin = new Date(dateFinStr);
+  const diff = (fin.getTime() - deb.getTime()) / 60000;
+  const h = Math.floor(diff / 60);
+  const m = diff % 60;
+  return m > 0 ? `${h}h${m}` : `${h}h`;
+};
+
+export default function ListeParticipants({ route, navigation }: any) {
+  const { sessionId } = route.params;
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [session, setSession] = useState<SessionInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [presences, setPresences] = useState<{ [key: number]: boolean }>({});
+  const [imageError, setImageError] = useState<boolean>(false);
 
   useEffect(() => {
     chargerParticipants();
@@ -25,9 +54,15 @@ export default function ListeParticipants() {
 
   const chargerParticipants = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${ENDPOINTS.PARTICIPANTS}?sessionId=${sessionId}`);
       const data = await response.json();
-      setParticipants(data);
+      setSession(data.session);
+      setParticipants(data.participants);
+      const initialPresences: { [key: number]: boolean } = {};
+      data.participants.forEach((p: Participant) => {
+        initialPresences[p.id_benevole] = p.statut_presence;
+      });
+      setPresences(initialPresences);
     } catch (error) {
       console.error("Erreur de chargement:", error);
     } finally {
@@ -35,203 +70,191 @@ export default function ListeParticipants() {
     }
   };
 
-  const obtenirInitiales = (prenom: string, nom: string) => {
-    return (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
-  }
-
-  const togglePresence = (id: number) => {
-    console.log("Changer la présence pour le bénévole n°", id);
+  const togglePresence = async (id: number, idSession: number) => {
+    const newStatut = !presences[id];
+    setPresences(prev => ({ ...prev, [id]: newStatut }));
+    await fetch(`${ENDPOINTS.PARTICIPANTS}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idBenevole: id, idSession: idSession, statut: newStatut })
+    });
   };
 
-  const renderItem = ({ item }: { item: Participant }) => (
-    <View style={styles.cardContainer}>
-      <View style={styles.card}>
-        <View style={styles.leftSection}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {obtenirInitiales(item.prenom, item.nom)}
-            </Text>
-          </View>
-          <View style={styles.infoSection}>
-            <View style={styles.titleBadge}>
-              <Text style={styles.nameText}>{item.prenom} {item.nom}</Text>
-            </View>
-            <Text style={styles.subText}>Inscrit(e) à la session</Text>
-          </View>
-        </View>
+  const obtenirInitiales = (prenom: string, nom: string) => {
+    return (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
+  };
 
-        <TouchableOpacity 
-          style={[styles.actionButton, item.statut_presence ? styles.buttonPresent : styles.buttonAbsent]}
-          onPress={() => togglePresence(item.id_benevole)}
+  const renderParticipant = ({ item }: { item: Participant }) => (
+    <View style={styles.card}>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{obtenirInitiales(item.prenom, item.nom)}</Text>
+      </View>
+      <View style={styles.cardInfo}>
+        <Text style={styles.cardName}>{item.prenom} {item.nom}</Text>
+        <Text style={styles.cardSub}>Bénévole</Text>
+        <Text style={styles.voirProfil}>Voir le profil</Text>
+      </View>
+      <View style={styles.buttonsCol}>
+        <TouchableOpacity
+          style={[styles.presenceBtn, presences[item.id_benevole] ? styles.btnAbsent : styles.btnAbsentActive]}
+          onPress={() => togglePresence(item.id_benevole, item.id_session)}
         >
-          <Text style={styles.buttonText}>
-            {item.statut_presence ? "Présent" : "Absent"}
-          </Text>
+          <Text style={styles.presenceBtnText}>Absent</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.presenceBtn, presences[item.id_benevole] ? styles.btnPresentActive : styles.btnPresent]}
+          onPress={() => togglePresence(item.id_benevole, item.id_session)}
+        >
+          <Text style={styles.presenceBtnText}>Présent</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#846EE1" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#A292EA" />
-      
-      <View style={styles.container}>
-        
-        {/* Ton magnifique dégradé */}
-        <LinearGradient 
-          colors={['#9b8ae9', '#d8d7dc']} 
-          start={{ x: 0, y: 0 }} 
-          end={{ x: 1, y: 1 }} 
-          style={styles.headerBackground}
-        >
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Présences</Text>
-            <View style={styles.profileIconPlaceholder} />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+
+        {/* Header */}
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Text style={styles.backArrow}>←</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Session</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        {/* Image formation */}
+        {session?.formation.image && !imageError ? (
+          <Image
+            source={{ uri: session.formation.image }}
+            style={styles.formationImage}
+            onError={() => { setImageError(true); }}
+          />
+        ) : (
+          <View style={[styles.formationImage, { backgroundColor: '#ddd' }]} />
+        )}
+
+        {/* Infos session */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoRow}>
+            <Text style={styles.formationTitle}>{session?.formation.title}</Text>
+            <Text style={styles.dateText}>{session ? formatDate(session.date_deb) : ''}</Text>
           </View>
-        
-          <View style={styles.mascotInlineContainer}>
-             <MascotteForma style={{}} />
-          </View>
-        </LinearGradient>
-       
-        {/* La liste des participants */}
-        <View style={styles.bodyContent}>
-          <Text style={styles.sectionTitle}>Liste des bénévoles...</Text>
-          
-          {loading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color="#4B3F8A" />
+          <View style={styles.infoRow}>
+            <View style={styles.presentielRow}>
+              <View style={[styles.dot, { backgroundColor: session?.presentiel ? '#EF4444' : '#22C55E' }]} />
+              <Text style={styles.presentielText}>{session?.presentiel ? 'Présentiel' : 'Distanciel'}</Text>
             </View>
+          </View>
+
+          <View style={styles.separator} />
+
+          <View style={styles.infoRow}>
+            <Text style={styles.sectionLabel}>Présentation de la mission</Text>
+            <Text style={styles.durationText}>
+              Durée : {session ? formatDuration(session.date_deb, session.date_fin) : ''}
+            </Text>
+          </View>
+          <Text style={styles.descriptionText}>
+            {session?.formation.description.replace(/&nbsp;|#{1,3}|\*/g, '').trim()}
+          </Text>
+        </View>
+
+        {/* Liste participants */}
+        <View style={styles.participantsSection}>
+          {participants.length === 0 ? (
+            <Text style={styles.emptyText}>Aucun bénévole inscrit.</Text>
           ) : (
-            <FlatList
-              data={participants}
-              keyExtractor={(item) => item.id_benevole.toString()}
-              renderItem={renderItem}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>Aucun bénévole inscrit.</Text>
-                </View>
-              }
-            />
+            participants.map((item) => (
+              <View key={item.id_benevole}>
+                {renderParticipant({ item })}
+              </View>
+            ))
           )}
         </View>
 
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-// L'objet "styles" indispensable pour que les lignes rouges disparaissent !
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#A292EA' },
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  
-  headerBackground: {
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    position: 'relative',
-    zIndex: 2,
+  safeArea: { flex: 1, backgroundColor: '#fff' },
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { color: '#A19EAF', fontStyle: 'italic' },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  headerContent: {
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backArrow: { fontSize: 24, color: '#846EE1' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#846EE1' },
+  formationImage: {
+    width: '90%',
+    height: 200,
+    borderRadius: 16,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  infoSection: { paddingHorizontal: 20, marginBottom: 10 },
+  infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 6,
+  },
+  formationTitle: { fontSize: 22, fontWeight: 'bold', color: '#111', flex: 1, marginRight: 8 },
+  dateText: { fontSize: 13, color: '#333', fontWeight: '600', marginTop: 4 },
+  presentielRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  presentielText: { fontSize: 13, color: '#555' },
+  separator: { height: 1, backgroundColor: '#eee', marginVertical: 12 },
+  sectionLabel: { fontSize: 15, fontWeight: 'bold', color: '#111' },
+  durationText: { fontSize: 13, color: '#555', fontWeight: '600' },
+  descriptionText: { fontSize: 13, color: '#444', lineHeight: 20, marginTop: 8 },
+  participantsSection: { paddingHorizontal: 16, paddingBottom: 40 },
+  card: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    backgroundColor: '#F0EEFF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
   },
-  headerTitle: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  profileIconPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-
- mascotInlineContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-
-  bodyContent: {
-    flex: 1,
-    paddingTop: 60,
-    backgroundColor: '#FFFFFF',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
-    paddingHorizontal: 20,
-    marginBottom: 10,
-  },
-  listContent: { paddingHorizontal: 20, paddingBottom: 40 },
-
-  cardContainer: {
-    marginBottom: 16,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#A292EA',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  card: { 
-    backgroundColor: '#F8F6FE',
-    padding: 16, 
-    borderRadius: 20,
-    flexDirection: 'row', 
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  leftSection: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#E2DDF8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15
+    width: 50, height: 50, borderRadius: 25,
+    backgroundColor: '#ddd',
+    justifyContent: 'center', alignItems: 'center',
+    marginRight: 12,
   },
-  avatarText: { color: '#846EE1', fontWeight: 'bold', fontSize: 18 },
-  infoSection: { flex: 1 },
-  
-  titleBadge: {
-    backgroundColor: '#846EE1',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginBottom: 4,
+  avatarText: { fontWeight: 'bold', fontSize: 16, color: '#846EE1' },
+  cardInfo: { flex: 1 },
+  cardName: { fontSize: 15, fontWeight: 'bold', color: '#111' },
+  cardSub: { fontSize: 12, color: '#888', marginTop: 2 },
+  voirProfil: { fontSize: 12, color: '#846EE1', textDecorationLine: 'underline', marginTop: 4 },
+  buttonsCol: { flexDirection: 'column', gap: 6 },
+  presenceBtn: {
+    paddingHorizontal: 14, paddingVertical: 6,
+    borderRadius: 20, alignItems: 'center',
   },
-  nameText: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  subText: { fontSize: 12, color: '#A19EAF' },
-
-  actionButton: { 
-    paddingHorizontal: 16, 
-    paddingVertical: 8, 
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonPresent: { backgroundColor: '#4B3F8A' },
-  buttonAbsent: { backgroundColor: '#EF4444' },
-  buttonText: { fontSize: 12, fontWeight: 'bold', color: '#FFFFFF' },
-
-  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyContainer: { alignItems: 'center', marginTop: 40 },
-  emptyText: { color: '#A19EAF', fontStyle: 'italic' }
+  btnAbsent: { backgroundColor: '#D8D0F8' },
+  btnAbsentActive: { backgroundColor: '#EF4444' },
+  btnPresent: { backgroundColor: '#D8D0F8' },
+  btnPresentActive: { backgroundColor: '#4B3F8A' },
+  presenceBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
 });

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList} from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { LinearGradient } from 'react-native-linear-gradient'
 import { Colors } from '../constants/Colors'
@@ -6,152 +6,173 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Loupe from '../components/Loupe'
 import MascotteFormat from '../components/MascotteForma'
 import Account from '../components/Account'
-import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const Thematiques = ({navigation}:any) => {
+interface Session {
+  id_session: number;
+  date_deb: string;
+  date_fin: string;
+  presentiel: boolean;
+  lieu: string;
+  nb_participants: number;
+  formation: {
+    id_formation: number;
+    title: string;
+    duration: number;
+    description: string;
+    image: string;
+  };
+  thematique: {
+    title: string;
+    color: string;
+    colorTitle: string;
+  };
+}
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+const formatHeure = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+};
+
+const Thematiques = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
-    const [formations, setFormations] = useState<any[]>([]);
-    const [formationsContinuer, setFormationsContinuer] = useState<any[]>([]);
-    const [formationsNonCommence, setFormationsNonCommence] = useState<any[]>([]);
-    const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [allFormations, setAllFormations] = useState(false);
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const chargerThematiques = async () => {
-
-        const user = await AsyncStorage.getItem('userData');
-        const userId = user ? JSON.parse(user).id : null;
-
-        const [responseThema, responseThemaContinuer, responseThemaNonCommence] = await Promise.all([
-            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`),
-            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=continuer`),
-            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=decouvrir`),  
-        ]);
-        const dataThema = await responseThema.json();
-        const dataThemaContinuer = await responseThemaContinuer.json();
-        const dataThemaNonCommence = await responseThemaNonCommence.json();
-
-        setFormations(dataThema);
-        setFilteredData(dataThema);
-        setFormationsContinuer(dataThemaContinuer);
-        setFormationsNonCommence(dataThemaNonCommence);
-        
+    const chargerSessions = async () => {
+        try {
+            const user = await AsyncStorage.getItem('userData');
+            const idFormateur = user ? JSON.parse(user).id : null;
+            const response = await fetch(`${ENDPOINTS.SESSIONS}?idFormateur=${idFormateur}`);
+            const data = await response.json();
+            setSessions(data);
+            setFilteredSessions(data);
+        } catch (error) {
+            console.error('Erreur chargement sessions:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-        chargerThematiques();
-     }, []);
+        chargerSessions();
+    }, []);
 
     useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-        setAllFormations(false);
-        setSearchQuery('');
-        setFilteredData(formations);
-    });
-    return unsubscribe;
-    }, [navigation, formations]);
+        const unsubscribe = navigation.addListener('focus', () => {
+            setSearchQuery('');
+            setFilteredSessions(sessions);
+        });
+        return unsubscribe;
+    }, [navigation, sessions]);
 
-    const handleSearch = (query : string) => {
+    const handleSearch = (query: string) => {
         setSearchQuery(query);
-        if(query === ''){
-            setAllFormations(false);
+        if (query === '') {
+            setFilteredSessions(sessions);
             return;
         }
-        const newData = formations.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
-        setFilteredData(newData);
-    }
+        const result = sessions.filter(s =>
+            s.formation.title.toLowerCase().includes(query.toLowerCase()) ||
+            s.lieu.toLowerCase().includes(query.toLowerCase())
+        );
+        setFilteredSessions(result);
+    };
+
+    const renderItem = ({ item }: { item: Session }) => (
+        <View style={[styles.card, { backgroundColor: item.thematique.color }]}>
+            <View style={styles.cardLeft}>
+                <Image source={{ uri: item.formation.image }} style={styles.cardImage} />
+            </View>
+
+            <View style={styles.cardMiddle}>
+                <View style={[styles.badge, { backgroundColor: item.thematique.colorTitle }]}>
+                    <Text style={styles.badgeText} numberOfLines={1}>{item.formation.title}</Text>
+                </View>
+                <Text style={styles.descText} numberOfLines={1}>
+                    {item.formation.description.replace(/&nbsp;|#|\*/g, '').trim().slice(0, 40)}...
+                </Text>
+                <View style={styles.cardMeta}>
+                    <Text style={styles.metaText}>Durée : {item.formation.duration}h</Text>
+                    <View style={styles.presentielRow}>
+                        <Text style={styles.metaText}>{item.presentiel ? 'Présentiel' : 'Distanciel'}</Text>
+                        <View style={[styles.dot, { backgroundColor: item.presentiel ? '#EF4444' : '#22C55E' }]} />
+                    </View>
+                </View>
+            </View>
+
+            <View style={styles.cardRight}>
+                <Text style={styles.dateText}>{formatDate(item.date_deb)}</Text>
+                <Text style={styles.heureText}>{formatHeure(item.date_deb)} - {formatHeure(item.date_fin)}</Text>
+                <TouchableOpacity
+                    style={styles.detailBtn}
+                    onPress={() => navigation.navigate('ListeParticipants', { sessionId: item.id_session })}
+                >
+                    <Text style={styles.detailBtnText}>Détails</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
 
     return (
         <View style={{ flex: 1, backgroundColor: Colors.white }}>
-            <View>
-                <LinearGradient style={styles.container}
-                    colors={[Colors.purple, Colors.light_pink]} 
-                    start={{ x: 0, y: 0 }} 
-                    end={{ x: 0, y: 1 }}
-                    >
-                    <View style={[{ marginTop: insets.top, marginBottom : 20 }, styles.header]}>
-                        <Text style={styles.title}>Thématiques</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                            <Account />
-                        </TouchableOpacity>
-                    </View>
-                    <MascotteFormat style={styles.mascotte} />
-                    <View style={styles.searchSection}>
-                        <Loupe />
-                        <TextInput
-                            style={styles.input}
-                            autoCapitalize='none'
-                            placeholder="Chercher des thématiques"
-                            autoCorrect={false}
-                            value={searchQuery}
-                            onChangeText={(query) => handleSearch(query)}
-                        />
-                    </View>
-                </LinearGradient>
-            </View>
+            <LinearGradient
+                style={styles.container}
+                colors={[Colors.purple, Colors.light_pink]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+            >
+                <View style={[{ marginTop: insets.top, marginBottom: 20 }, styles.header]}>
+                    <Text style={styles.title}>Sessions</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                        <Account />
+                    </TouchableOpacity>
+                </View>
+                <MascotteFormat style={styles.mascotte} />
+                <View style={styles.searchSection}>
+                    <Loupe />
+                    <TextInput
+                        style={styles.input}
+                        autoCapitalize='none'
+                        placeholder="Chercher des sessions"
+                        autoCorrect={false}
+                        value={searchQuery}
+                        onChangeText={handleSearch}
+                    />
+                </View>
+            </LinearGradient>
 
             <View style={{ flex: 3 }}>
-                {(searchQuery !== '' || allFormations)? (<FlatList
-                data={filteredData}
-                keyExtractor={(item) => item.id_thematique.toString()}
-                renderItem={({ item } : { item: any }) => (
-                    <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
+                {loading ? (
+                    <View style={styles.loader}>
+                        <ActivityIndicator size="large" color={Colors.purple} />
+                    </View>
+                ) : (
+                    <FlatList
+                        data={filteredSessions}
+                        keyExtractor={(item) => item.id_session.toString()}
+                        renderItem={renderItem}
+                        contentContainerStyle={styles.listContent}
+                        showsVerticalScrollIndicator={false}
+                        ListEmptyComponent={
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 }}>
+                                <Text style={{ fontSize: 16, color: 'gray' }}>Aucune session trouvée</Text>
+                            </View>
+                        }
+                    />
                 )}
-
-                contentContainerStyle={{ flexGrow: 1 }}
-                
-                ListEmptyComponent={
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{ fontSize: 18, color: 'gray' }}>Aucune thématique trouvée</Text>
-                    </View>
-                }
-
-                persistentScrollbar={false}
-                bounces={true}
-            />) : (
-                <>
-                <View>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20 }}>Continuer...</Text>
-                    <FlatList
-                        data={formationsContinuer.filter(item => item.progression < item._count.formations)}
-                        keyExtractor={(item) => item.id_thematique.toString()}
-                        ListEmptyComponent={
-                            <Text style={styles.textAucun}>Vous n'avez commencé aucune formation</Text>
-                        }
-                        style={{maxHeight : 200}}
-                        renderItem={({ item } : { item: any }) => (
-                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
-                        )}
-                        />
-                </View>
-                <View style={{flex : 1}}>
-                    <Text style={{ fontSize: 30, fontWeight: 'bold', marginHorizontal: 20, marginTop : 20 }}>Découvrir</Text>
-                    <FlatList
-                        data={formationsNonCommence}
-                        keyExtractor={(item) => item.id_thematique.toString()}
-                        style={{maxHeight : '100%'}}
-                        ListEmptyComponent={
-                            <Text style={styles.textAucun}>Vous avez tout découvert, restez en alerte pour les nouvelles formations !</Text>
-                        }
-                        renderItem={({ item } : { item: any }) => (
-                            <ThematiqueTemplate color={item.color} colorTitle={item.colorTitle} title={item.title} duration={item.totalDuration} total={item._count.formations} image={item.image} description={item.description} id_thematique={item.id_thematique} progression={item.progression} />
-                        )}
-                        />
-                    </View>
-                <TouchableOpacity 
-                    style={{alignSelf: 'flex-end', marginVertical: 20, backgroundColor: Colors.grey, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginRight: 20}} 
-                    onPress={() => setAllFormations(true)}>
-                    <Text style={{ color: Colors.white, fontWeight: 'bold' }}>Plus de formations</Text>
-                </TouchableOpacity>
-                </>
-            )}
-            
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -186,21 +207,61 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         color: '#424242',
     },
-    mascotte: {
-        alignSelf: 'center',
-    },
-    header : {
+    mascotte: { alignSelf: 'center' },
+    header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginLeft: 20,
         marginRight: 20,
     },
-    textAucun: {
-        fontSize: 16,
-        color: 'gray',
-        margin: 20,
-    },  
-})
+    loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    listContent: { paddingHorizontal: 16, paddingBottom: 40, paddingTop: 8 },
 
-export default Thematiques
+    card: {
+        flexDirection: 'row',
+        borderRadius: 20,
+        marginBottom: 16,
+        padding: 12,
+        alignItems: 'center',
+        elevation: 3,
+        shadowColor: '#846EE1',
+        shadowOpacity: 0.15,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 8,
+    },
+    cardLeft: { marginRight: 10 },
+    cardImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 12,
+        backgroundColor: '#ddd',
+    },
+    cardMiddle: { flex: 1, marginRight: 8 },
+    badge: {
+        borderRadius: 10,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        alignSelf: 'flex-start',
+        marginBottom: 4,
+    },
+    badgeText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+    descText: { fontSize: 11, color: '#555', marginBottom: 6 },
+    cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    metaText: { fontSize: 11, color: '#444', fontWeight: '500' },
+    presentielRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    dot: { width: 8, height: 8, borderRadius: 4 },
+
+    cardRight: { alignItems: 'flex-end', justifyContent: 'space-between', minWidth: 90 },
+    dateText: { fontSize: 11, fontWeight: 'bold', color: '#333' },
+    heureText: { fontSize: 10, color: '#666', marginBottom: 6 },
+    detailBtn: {
+        backgroundColor: '#4B3F8A',
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+    },
+    detailBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+});
+
+export default Thematiques;

@@ -9,7 +9,7 @@ import SettingsIcon from '../components/SettingsIcon';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import PastilleActive from '../components/PastilleActive';
 import Thematiques from '../screens/Thematiques';
-import ListeParticipants from '../screens/Formateur/ListeParticipants';
+import SessionsFormateur from '../screens/Formateur/SessionsFormateur';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +18,7 @@ const RootNavigator = () => {
 
 return (
     <Tab.Navigator
-    initialRouteName='ListeParticipants'
+    initialRouteName='SessionsFormateur'
     screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.purple,
@@ -53,7 +53,7 @@ return (
     />
 
 
-    <Tab.Screen name="ListeParticipants" component={ListeParticipants}
+    <Tab.Screen name="SessionsFormateur" component={SessionsFormateur}
     options={{
         tabBarButton: (props) => {
         const { ref, ...rest } = props;
