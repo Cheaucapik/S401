@@ -3,9 +3,7 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// Plus de "handler", on nomme la fonction directement GET
 export async function GET(req: Request) {
-  // C'est ici qu'on récupère l'ID de la session dans l'URL avec le App Router
   const { searchParams } = new URL(req.url);
   const sessionId = searchParams.get('sessionId');
 
@@ -18,22 +16,23 @@ export async function GET(req: Request) {
 
   try {
     const participants = await prisma.suivi.findMany({
-      where: {
-        idSession: parseInt(sessionId),
-      },
+      where: { idSession: parseInt(sessionId) },
       include: {
         benevole: {
           include: {
             utilisateur: {
-              select: {
-                id_utilisateur: true,
-                nom: true,
-                prenom: true,
-              },
-            },
-          },
+              select: { id_utilisateur: true, nom: true, prenom: true }
+            }
+          }
         },
-      },
+        session: {
+          include: {
+            formation: {
+              include: { thematique: true }
+            }
+          }
+        }
+      }
     });
 
     const formattedParticipants = participants.map((p) => ({
@@ -44,7 +43,21 @@ export async function GET(req: Request) {
       statut_presence: p.statut,
     }));
 
-    return NextResponse.json(formattedParticipants, { status: 200 });
+    return NextResponse.json({
+      session: {
+        date_deb: participants[0]?.session.date_deb,
+        date_fin: participants[0]?.session.date_fin,
+        presentiel: participants[0]?.session.presentiel,
+        lieu: participants[0]?.session.lieu,
+        formation: {
+          title: participants[0]?.session.formation.title,
+          duration: participants[0]?.session.formation.duration,
+          description: participants[0]?.session.formation.description,
+          image: participants[0]?.session.formation.image,
+        }
+      },
+      participants: formattedParticipants
+    }, { status: 200 });
 
   } catch (error) {
     console.error("Erreur Backend:", error);
@@ -52,5 +65,25 @@ export async function GET(req: Request) {
       { message: "Erreur lors de la récupération des participants." },
       { status: 500 }
     );
+  }
+}
+export async function PATCH(req: Request) {
+  const body = await req.json();
+  const { idBenevole, idSession, statut } = body;
+
+  try {
+    await prisma.suivi.update({
+      where: {
+        idBenevole_idSession: {
+          idBenevole: idBenevole,
+          idSession: idSession,
+        }
+      },
+      data: { statut: statut }
+    });
+
+    return NextResponse.json({ message: "Statut mis à jour" }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Erreur lors de la mise à jour" }, { status: 500 });
   }
 }
