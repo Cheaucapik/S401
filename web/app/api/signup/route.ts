@@ -24,6 +24,14 @@ export async function POST(request : Request) {
             return NextResponse.json({ error: "Email déjà utilisé" }, { status: 400 });
         }
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+            return NextResponse.json({ 
+                error: "Le mot de passe doit contenir 8 caractères, une majuscule, un chiffre et un caractère spécial." 
+            }, { status: 400 });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         await prisma.utilisateur.create({
             data : {
