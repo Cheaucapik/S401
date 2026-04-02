@@ -13,6 +13,8 @@ import RootNavigatorFormateur from './RootNavigatorFormateur';
 import {Colors} from '../constants/Colors';
 import EditProfile from '../screens/EditProfile';
 import ChangePassword from '../screens/ChangePassword';
+import FormationsAxe from '../screens/FormationsAxe';
+import FormationAdmin from '../screens/FormationAdmin';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +39,8 @@ const AppNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="AdminRoot" component={RootNavigatorAdmin} />
+          <Stack.Screen name="FormationsAxe" component={FormationsAxe} />
+          <Stack.Screen name="FormationAdmin" component={FormationAdmin} />
           <Stack.Screen name="Profile" component={Settings}/>
           <Stack.Screen name="EditProfile" component={EditProfile}/>
           <Stack.Screen name="ChangePassword" component={ChangePassword}/>
@@ -52,7 +56,7 @@ const AppNavigator = () => {
           <Stack.Screen name="FormateurRoot" component={RootNavigatorFormateur} />
           <Stack.Screen name="Profile" component={Settings}/>
           <Stack.Screen name="EditProfile" component={EditProfile}/>
-        <Stack.Screen name="ChangePassword" component={ChangePassword}/>
+          <Stack.Screen name="ChangePassword" component={ChangePassword}/>
         </Stack.Navigator>
       </NavigationContainer>
     );
