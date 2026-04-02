@@ -78,7 +78,14 @@ if (isLoading || (token && !user?.role)) return <ActivityIndicator size="large" 
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="BenevoleRoot" component={RootNavigator} />
-        <Stack.Screen name="ChoixSession" component={ChoixSession} />
+        <Stack.Screen name="ChoixSession" component={ChoixSession}
+        options={{
+            headerTitle: "Choix session",
+            headerShown: true,
+            headerTitleAlign: 'center',
+            headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
+            headerTintColor: Colors.primary_blue,
+            headerShadowVisible: false,}} />
         <Stack.Screen name="FormationsDetails" component={FormationsDetails}
         options={{
             headerTitle: "Formations",

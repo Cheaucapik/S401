@@ -23,8 +23,9 @@ const ChoixSession = () => {
                 const response = await fetch(`${ENDPOINTS.SESSIONS_DISPO}?idFormation=${formationId}`);
                 const data = await response.json();
                 setSessions(Array.isArray(data) ? data : []);
-            } catch (error) {
-                Alert.alert("Erreur", "Connexion au serveur impossible");
+            } catch (error : any) {
+                console.error("DEBUG FETCH ERROR:", error); // Regarde dans ton terminal Metro
+                Alert.alert("Erreur", "Détail : " + error.message);
             } finally {
                 setLoading(false);
             }

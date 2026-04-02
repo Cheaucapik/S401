@@ -5,11 +5,12 @@ import { Colors } from '../constants/Colors'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Loupe from '../components/Loupe'
 import MascotteForma from '../components/MascotteForma'
-import Account from '../components/Account'
+import Avatar from '../components/Avatar'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import File from '../components/File'
 import Descr from '../components/Descr'
+import { useAuth } from '../context/AuthContext'
 
 function hsvToHex(h: number, s: number, v: number): string {
     const f = (n: number) => {
@@ -104,6 +105,7 @@ const pickerStyle = StyleSheet.create({
 })
 
 const AxesAdmin = ({ navigation }: any) => {
+    const { user } = useAuth();
     const insets = useSafeAreaInsets()
     const [visible, setVisible] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -208,7 +210,7 @@ const AxesAdmin = ({ navigation }: any) => {
                     <View style={[{ marginTop: insets.top, marginBottom: 20 }, styles.header]}>
                         <Text style={styles.title}>Axes</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                            <Account />
+                            <Avatar uri={user?.pfp} size={60} />
                         </TouchableOpacity>
                     </View>
                     <MascotteForma style={styles.mascotte} />

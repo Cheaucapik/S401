@@ -13,10 +13,11 @@ import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar';
 import ProgressionTemplate from '../components/ProgressionTemplate'
 import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 const Home = () => {
     const insets = useSafeAreaInsets();
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<any>>();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -75,7 +76,7 @@ const Home = () => {
                 >
                     <View style={[{ marginTop: insets.top, marginBottom: 20 }, styles.header]}>
                         <Text style={styles.title}>Explorer</Text>
-                        <TouchableOpacity onPress={() => (navigation as any).navigation.navigate('Profile')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                             <Avatar uri={user?.pfp} size={60} />
                         </TouchableOpacity>
                     </View>

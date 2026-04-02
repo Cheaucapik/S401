@@ -138,7 +138,11 @@ const EditProfile = ({ navigation }: any) => {
             if (response.ok) {
                 updateUser(data.user);
                 Alert.alert("Succès", "Profil mis à jour !");
-                navigation.goBack();
+                if (navigation.canGoBack()) {
+                    navigation.goBack();
+                } else {
+                    navigation.navigate('Profile'); 
+                }
             } else {
                 Alert.alert("Erreur", data.error || "Échec de la mise à jour.");
             }

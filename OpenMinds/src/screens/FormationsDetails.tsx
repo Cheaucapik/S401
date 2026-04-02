@@ -7,6 +7,7 @@ import Markdown from 'react-native-markdown-display';
 import { useEffect, useState } from 'react';
 import { ENDPOINTS } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useIsFocused } from '@react-navigation/native';
 
 const InfoFormation = ({titre, numero, presentiel, colorTitle, total} :{ titre : string, numero : number, presentiel : boolean, colorTitle : string, total : number }) => (
   <View style={styles.details}>
@@ -41,6 +42,14 @@ const FormationsDetails = () => {
   const [formation, setFormation] = useState<any>(null)
   const [sessions, setSessions] = useState<any>(null)
   const navigation = useNavigation<any>();
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+      if (isFocused && id) {
+          chargerFormation();
+      }
+  }, [isFocused, id]);
 
   const handlePress = () => {
     if(sessions.length > 0) {

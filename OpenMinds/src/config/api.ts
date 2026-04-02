@@ -15,4 +15,7 @@ export const ENDPOINTS = {
     UPDATE_PASSWORD: `${API_BASE_URL}/password`,
     SESSIONS_DISPO: `${API_BASE_URL}/sessions-disponibles`,
     FORMATEURS: `${API_BASE_URL}/formateurs`,
+    SESSION_BENEVOLE : `${API_BASE_URL}/sessionBenevole`,
+    UPLOAD_PFP : `${API_BASE_URL}/upload_pfp`,
+    API_URL : `http://${DEV_IP}:${PORT}`,    
 };

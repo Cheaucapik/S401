@@ -305,7 +305,183 @@ Un digital-Learning/formation e-learning pour informer et sensibiliser sur les e
       idSession: sessionRepublique.id_session
     }
   });
+
+  // --- NOUVELLES SESSIONS (NON SUIVIES PAR OCÉANE) ---
+
+  // Pour Inclusion Niveau 1
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-07-10T14:00:00"),
+      date_fin: new Date("2026-07-10T17:00:00"),
+      presentiel: true,
+      lieu: "Centre de formation Lyon",
+      idFormation: themaInclusion.formations[0].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // Pour Inclusion Niveau 2
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-07-12T10:00:00"),
+      date_fin: new Date("2026-07-12T11:00:00"),
+      presentiel: false,
+      lieu: "Distanciel (Zoom)",
+      idFormation: themaInclusion.formations[1].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+
+  // Pour Tolérance Niveau 1
+  const themaTolerance = await prisma.thematique.findFirst({ where: { title: "Tolérance" }, include: { formations: true } });
+  if (themaTolerance) {
+    await prisma.session.create({
+      data: {
+        date_deb: new Date("2026-08-05T09:00:00"),
+        date_fin: new Date("2026-08-05T10:00:00"),
+        presentiel: true,
+        lieu: "Antenne Marseille",
+        idFormation: themaTolerance.formations[0].id_formation,
+        idFormateur: jeanFormateur.id_utilisateur
+      }
+    });
+
+    // Pour Tolérance Niveau 2
+    await prisma.session.create({
+      data: {
+        date_deb: new Date("2026-08-06T14:00:00"),
+        date_fin: new Date("2026-08-06T19:00:00"),
+        presentiel: false,
+        lieu: "E-Learning",
+        idFormation: themaTolerance.formations[1].id_formation,
+        idFormateur: marieFormatrice.id_utilisateur
+      }
+    });
   }
+
+  // Pour Egalité
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-09-01T10:00:00"),
+      date_fin: new Date("2026-09-01T11:00:00"),
+      presentiel: true,
+      lieu: "Centre de secours Lille",
+      idFormation: themaEgalite.formations[0].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+
+  // Pour Environnement (Zéro Déchet)
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-05-20T18:00:00"),
+      date_fin: new Date("2026-05-20T20:00:00"),
+      presentiel: false,
+      lieu: "Webinaire",
+      idFormation: themaEnvironnement.formations[1].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // Pour Environnement (Biodiversité)
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-05-25T14:00:00"),
+      date_fin: new Date("2026-05-25T18:00:00"),
+      presentiel: true,
+      lieu: "Parc Naturel Régional",
+      idFormation: themaEnvironnement.formations[2].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+
+  // Pour Citoyenneté (Engagement Bénévole)
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-06-20T10:00:00"),
+      date_fin: new Date("2026-06-20T11:00:00"),
+      presentiel: false,
+      lieu: "Plateforme Teams",
+      idFormation: themaCitoyennete.formations[1].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // --- SESSIONS SUPPLÉMENTAIRES (SANS OCÉANE) ---
+
+  // Nouvelle session pour Inclusion Niveau 1 (Session du soir)
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-10-15T18:00:00"),
+      date_fin: new Date("2026-10-15T21:00:00"),
+      presentiel: true,
+      lieu: "Antenne Protection Civile, Bordeaux",
+      idFormation: themaInclusion.formations[0].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // Nouvelle session pour Égalité Hommes Femmes
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-11-05T09:30:00"),
+      date_fin: new Date("2026-11-05T10:30:00"),
+      presentiel: false,
+      lieu: "Visioconférence Google Meet",
+      idFormation: themaEgalite.formations[0].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+
+  // Nouvelle session pour Fresque du Climat
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-12-12T14:00:00"),
+      date_fin: new Date("2026-12-12T17:00:00"),
+      presentiel: true,
+      lieu: "Mairie de Toulouse",
+      idFormation: themaEnvironnement.formations[0].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // Nouvelle session pour Valeurs de la République
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-09-20T09:00:00"),
+      date_fin: new Date("2026-09-20T11:00:00"),
+      presentiel: true,
+      lieu: "Centre Social, Nantes",
+      idFormation: themaCitoyennete.formations[0].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+
+  // Session "Rattrapage" pour Zéro Déchet au quotidien
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-12-20T17:00:00"),
+      date_fin: new Date("2026-12-20T19:00:00"),
+      presentiel: false,
+      lieu: "E-Learning Live",
+      idFormation: themaEnvironnement.formations[1].id_formation,
+      idFormateur: jeanFormateur.id_utilisateur
+    }
+  });
+
+  // Session de fin d'année pour Biodiversité locale
+  await prisma.session.create({
+    data: {
+      date_deb: new Date("2026-11-18T13:30:00"),
+      date_fin: new Date("2026-11-18T17:30:00"),
+      presentiel: true,
+      lieu: "Réserve Naturelle, Montpellier",
+      idFormation: themaEnvironnement.formations[2].id_formation,
+      idFormateur: marieFormatrice.id_utilisateur
+    }
+  });
+  }
+  
 
 main()
   .catch((e) => console.error(e))
