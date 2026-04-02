@@ -4,7 +4,7 @@ import { StatusBar } from 'react-native';
 import { useEffect } from 'react'
 import BootSplash from "react-native-bootsplash";
 import { AuthProvider } from './context/AuthContext';
-import ListeParticipants from'./screens/Formateur/ListeParticipants';
+import ListeParticipants from'./screens/ListeParticipants';
 
 const App = () => {
   useEffect(() => {

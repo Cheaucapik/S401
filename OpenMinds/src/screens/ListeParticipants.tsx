@@ -3,7 +3,9 @@ import {
   View, Text, StyleSheet, ActivityIndicator,
   StatusBar, TouchableOpacity, SafeAreaView, Image, ScrollView
 } from 'react-native';
-import { ENDPOINTS } from '../../config/api';
+import { ENDPOINTS } from '../config/api';
+import { Colors } from '../constants/Colors';
+import Rond from '../components/Rond';
 
 interface Participant {
   id_benevole: number;
@@ -25,6 +27,19 @@ interface SessionInfo {
     image: string;
   };
 }
+
+const InfoSessionHeader = ({ titre, date, presentiel }: { titre: string, date: string, presentiel: boolean }) => (
+  <View style={styles.details}>
+    <Text style={styles.cardText}>{titre}</Text>
+    <View style={styles.details1}>
+        <Text style={styles.dateLabel}>{date}</Text>
+        <View style={styles.presentiel}>
+            <Rond color={presentiel ? Colors.green : Colors.red} height={15} width={15}/>
+            <Text style={styles.presentielText}>{presentiel ? 'Présentiel' : 'Distanciel'}</Text>
+        </View>
+    </View>
+  </View>
+);
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -64,7 +79,7 @@ export default function ListeParticipants({ route, navigation }: any) {
       });
       setPresences(initialPresences);
     } catch (error) {
-      console.error("Erreur de chargement:", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -84,15 +99,14 @@ export default function ListeParticipants({ route, navigation }: any) {
     return (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
   };
 
-  const renderParticipant = ({ item }: { item: Participant }) => (
-    <View style={styles.card}>
+  const renderParticipant = (item: Participant) => (
+    <View style={styles.card} key={item.id_benevole}>
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{obtenirInitiales(item.prenom, item.nom)}</Text>
       </View>
       <View style={styles.cardInfo}>
         <Text style={styles.cardName}>{item.prenom} {item.nom}</Text>
         <Text style={styles.cardSub}>Bénévole</Text>
-        <Text style={styles.voirProfil}>Voir le profil</Text>
       </View>
       <View style={styles.buttonsCol}>
         <TouchableOpacity
@@ -115,7 +129,7 @@ export default function ListeParticipants({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#846EE1" />
+          <ActivityIndicator size="large" color={Colors.primary_blue} />
         </View>
       </SafeAreaView>
     );
@@ -124,67 +138,45 @@ export default function ListeParticipants({ route, navigation }: any) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-
-        {/* Header */}
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Text style={styles.backArrow}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Session</Text>
-          <View style={{ width: 40 }} />
-        </View>
-
-        {/* Image formation */}
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {session?.formation.image && !imageError ? (
           <Image
             source={{ uri: session.formation.image }}
-            style={styles.formationImage}
-            onError={() => { setImageError(true); }}
+            style={styles.image}
+            onError={() => setImageError(true)}
           />
         ) : (
-          <View style={[styles.formationImage, { backgroundColor: '#ddd' }]} />
+          <View style={[styles.image, { backgroundColor: '#ddd' }]} />
         )}
 
-        {/* Infos session */}
-        <View style={styles.infoSection}>
-          <View style={styles.infoRow}>
-            <Text style={styles.formationTitle}>{session?.formation.title}</Text>
-            <Text style={styles.dateText}>{session ? formatDate(session.date_deb) : ''}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.presentielRow}>
-              <View style={[styles.dot, { backgroundColor: session?.presentiel ? '#EF4444' : '#22C55E' }]} />
-              <Text style={styles.presentielText}>{session?.presentiel ? 'Présentiel' : 'Distanciel'}</Text>
-            </View>
-          </View>
+        <InfoSessionHeader 
+            titre={session?.formation.title || ""} 
+            date={session ? formatDate(session.date_deb) : ""} 
+            presentiel={session?.presentiel || false} 
+        />
 
-          <View style={styles.separator} />
-
-          <View style={styles.infoRow}>
-            <Text style={styles.sectionLabel}>Présentation de la mission</Text>
-            <Text style={styles.durationText}>
-              Durée : {session ? formatDuration(session.date_deb, session.date_fin) : ''}
-            </Text>
-          </View>
-          <Text style={styles.descriptionText}>
-            {session?.formation.description.replace(/&nbsp;|#{1,3}|\*/g, '').trim()}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 }}>
+          <Text style={styles.resumeText}>Présentation de la mission</Text>
+          <Text style={styles.resumeText}>
+             Durée : {session ? formatDuration(session.date_deb, session.date_fin) : ''}
           </Text>
         </View>
 
-        {/* Liste participants */}
+        <Text style={styles.descriptionText}>
+          {session?.formation.description.replace(/&nbsp;|#{1,3}|\*/g, '').trim()}
+        </Text>
+
+        <View style={styles.separator} />
+
+        <Text style={[styles.resumeText, { marginBottom: 15 }]}>Liste des participants</Text>
+        
         <View style={styles.participantsSection}>
           {participants.length === 0 ? (
             <Text style={styles.emptyText}>Aucun bénévole inscrit.</Text>
           ) : (
-            participants.map((item) => (
-              <View key={item.id_benevole}>
-                {renderParticipant({ item })}
-              </View>
-            ))
+            participants.map((item) => renderParticipant(item))
           )}
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -192,42 +184,19 @@ export default function ListeParticipants({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
+  container: { padding: 35, backgroundColor: '#fff', flexGrow: 1 },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { color: '#A19EAF', fontStyle: 'italic' },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
-  backArrow: { fontSize: 24, color: '#846EE1' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#846EE1' },
-  formationImage: {
-    width: '90%',
-    height: 200,
-    borderRadius: 16,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  infoSection: { paddingHorizontal: 20, marginBottom: 10 },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
-  formationTitle: { fontSize: 22, fontWeight: 'bold', color: '#111', flex: 1, marginRight: 8 },
-  dateText: { fontSize: 13, color: '#333', fontWeight: '600', marginTop: 4 },
-  presentielRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  dot: { width: 10, height: 10, borderRadius: 5 },
-  presentielText: { fontSize: 13, color: '#555' },
-  separator: { height: 1, backgroundColor: '#eee', marginVertical: 12 },
-  sectionLabel: { fontSize: 15, fontWeight: 'bold', color: '#111' },
-  durationText: { fontSize: 13, color: '#555', fontWeight: '600' },
-  descriptionText: { fontSize: 13, color: '#444', lineHeight: 20, marginTop: 8 },
-  participantsSection: { paddingHorizontal: 16, paddingBottom: 40 },
+  image: { width: '100%', height: 200, marginBottom: 20, borderRadius: 30 },
+  details: { backgroundColor: '#fff', marginBottom: 20, borderRadius: 8, alignItems: 'flex-start', flexDirection: 'row', justifyContent: 'space-between' },
+  cardText: { fontSize: 25, maxWidth: '65%', fontWeight: 'bold', color: '#000' },
+  details1: { gap: 10, alignItems: 'flex-end' },
+  dateLabel: { fontSize: 14, color: '#333', fontWeight: 'bold' },
+  presentiel: { flexDirection: 'row', alignItems: 'center', gap: 15 },
+  presentielText: { fontSize: 16, fontWeight: 'bold', color: '#000' },
+  resumeText: { fontSize: 16, fontWeight: 'bold', color: '#000' },
+  descriptionText: { fontSize: 14, color: '#444', lineHeight: 20, marginBottom: 20 },
+  separator: { height: 1, backgroundColor: '#eee', marginVertical: 20 },
+  participantsSection: { paddingBottom: 40 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -238,7 +207,7 @@ const styles = StyleSheet.create({
   },
   avatar: {
     width: 50, height: 50, borderRadius: 25,
-    backgroundColor: '#ddd',
+    backgroundColor: '#fff',
     justifyContent: 'center', alignItems: 'center',
     marginRight: 12,
   },
@@ -257,4 +226,5 @@ const styles = StyleSheet.create({
   btnPresent: { backgroundColor: '#D8D0F8' },
   btnPresentActive: { backgroundColor: '#4B3F8A' },
   presenceBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  emptyText: { color: '#A19EAF', fontStyle: 'italic', textAlign: 'center' },
 });

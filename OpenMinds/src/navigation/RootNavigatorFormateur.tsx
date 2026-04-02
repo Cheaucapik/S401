@@ -8,8 +8,8 @@ import FormationIcon from '../components/FormationIcon';
 import SettingsIcon from '../components/SettingsIcon';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import PastilleActive from '../components/PastilleActive';
-import Thematiques from '../screens/Thematiques';
-import SessionsFormateur from '../screens/Formateur/SessionsFormateur';
+import HomeFormateur from '../screens/HomeFormateur';
+import SessionsFormateur from '../screens/SessionsFormateur';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,8 +31,8 @@ return (
         }
     }}
     >
-    <Tab.Screen name="FormationsListe" 
-    component={Thematiques}
+    <Tab.Screen name="SessionsFormateur" 
+    component={SessionsFormateur}
     options={{
         tabBarButton: (props) => {
         const { ref, ...rest } = props;
@@ -53,7 +53,7 @@ return (
     />
 
 
-    <Tab.Screen name="SessionsFormateur" component={SessionsFormateur}
+    <Tab.Screen name="HomeFormateur" component={HomeFormateur}
     options={{
         tabBarButton: (props) => {
         const { ref, ...rest } = props;

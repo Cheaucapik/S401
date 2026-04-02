@@ -14,9 +14,14 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MascotteForma from '../../components/MascotteForma';
-import Account from '../../components/Account';
-import { ENDPOINTS } from '../../config/api';
+import MascotteFormat from '../components/MascotteForma';
+import { ENDPOINTS } from '../config/api';
+import { Colors } from '../constants/Colors';
+import Avatar from '../components/Avatar';
+import Loupe from '../components/Loupe'
+import Rond from '../components/Rond'
+import {useAuth} from '../context/AuthContext';
+import SessionTemplate from '../components/SessionTemplate';
 
 interface Session {
   id_session: number;
@@ -54,7 +59,8 @@ export default function SessionsFormateur({ navigation }: any) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [filtered, setFiltered] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuth();
 
   const chargerSessions = async () => {
     try {
@@ -76,7 +82,7 @@ export default function SessionsFormateur({ navigation }: any) {
   }, []);
 
   const handleSearch = (query: string) => {
-    setSearch(query);
+    setSearchQuery(query);
     if (query === '') {
       setFiltered(sessions);
       return;
@@ -99,12 +105,12 @@ export default function SessionsFormateur({ navigation }: any) {
           <Text style={styles.badgeText} numberOfLines={1}>{item.formation.title}</Text>
         </View>
         <Text style={styles.descText} numberOfLines={1}>{item.formation.description.replace(/&nbsp;|#|\*/g, '').trim().slice(0, 40)}...</Text>
-        <View style={styles.cardMeta}>
-          <Text style={styles.metaText}>Durée : {item.formation.duration}h</Text>
-          <View style={styles.presentielRow}>
-            <Text style={styles.metaText}>{item.presentiel ? 'Présentiel' : 'Distanciel'}</Text>
-            <View style={[styles.dot, { backgroundColor: item.presentiel ? '#EF4444' : '#22C55E' }]} />
-          </View>
+        <View style={styles.detailContainer}>
+                <Text style={{ fontSize: 12, color: 'black'}}>Durée : {item.formation.duration}h</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+                    <Text style={{ fontSize: 12, color: 'black'}}>{item.presentiel ? 'Présentiel' : 'À distance'}</Text>
+                    <Rond color={item.presentiel ? Colors.green : Colors.red} height={15} width={15} />
+                </View>
         </View>
       </View>
 
@@ -123,35 +129,34 @@ export default function SessionsFormateur({ navigation }: any) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#9b8ae9' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.white }}>
+            <View>
+                <LinearGradient style={styles.container}
+                    colors={[Colors.purple, Colors.light_pink]} 
+                    start={{ x: 0, y: 0 }} 
+                    end={{ x: 0, y: 1 }}
+                    >
+                    <View style={[{ marginTop: insets.top, marginBottom : 20 }, styles.header]}>
+                        <Text style={styles.title}>Sessions</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                            <Avatar uri={user?.pfp} size={60} />
+                        </TouchableOpacity>
+                    </View>
+                    <MascotteFormat style={styles.mascotte} />
+                    <View style={styles.searchSection}>
+                        <Loupe />
+                        <TextInput
+                            style={styles.input}
+                            autoCapitalize='none'
+                            placeholder="Chercher des sessions"
+                            autoCorrect={false}
+                            value={searchQuery}
+                            onChangeText={(query) => handleSearch(query)}
+                        />
+                    </View>
+                </LinearGradient>
+            </View>
       <StatusBar barStyle="light-content" backgroundColor="#9b8ae9" />
-      <View style={styles.container}>
-
-        <LinearGradient
-          colors={['#9b8ae9', '#c4b8f0']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={[styles.header, { paddingTop: insets.top + 10 }]}
-        >
-          <View style={styles.headerRow}>
-            <Text style={styles.headerTitle}>Sessions</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-              <Account />
-            </TouchableOpacity>
-          </View>
-          <MascotteForma style={{}} />
-          <View style={styles.searchBar}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Chercher des sessions"
-              placeholderTextColor="#aaa"
-              value={search}
-              onChangeText={handleSearch}
-              autoCorrect={false}
-              autoCapitalize="none"
-            />
-          </View>
-        </LinearGradient>
 
         <View style={styles.body}>
           {loading ? (
@@ -162,7 +167,10 @@ export default function SessionsFormateur({ navigation }: any) {
             <FlatList
               data={filtered}
               keyExtractor={(item) => item.id_session.toString()}
-              renderItem={renderItem}
+            
+              renderItem={({ item } : { item: any }) => (
+                    <SessionTemplate presentiel={item.presentiel} date_deb={item.date_deb} date_fin={item.date_fin} description={item.formation.description} color={item.thematique.color} colorTitle={item.thematique.colorTitle} title={item.formation.title} duration={item.formation.duration} image={item.formation.image} id_session={item.id_session} />
+                )}
               contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
@@ -180,27 +188,6 @@ export default function SessionsFormateur({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-
-  header: {
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    alignItems: 'center',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 8,
-  },
-  headerTitle: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -236,7 +223,7 @@ const styles = StyleSheet.create({
   cardImage: {
     width: 60,
     height: 60,
-    borderRadius: 12,
+    borderRadius: 30,
     backgroundColor: '#ddd',
   },
   cardMiddle: { flex: 1, marginRight: 8 },
@@ -248,20 +235,77 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   badgeText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
-  descText: { fontSize: 11, color: '#555', marginBottom: 6 },
-  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  metaText: { fontSize: 11, color: '#444', fontWeight: '500' },
-  presentielRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
+  descText: { fontSize: 11, color: Colors.grey, marginBottom: 6 },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 10},
+  metaText: { fontSize: 11, color: '#444', fontWeight: '500'},
+  presentielRow: { flexDirection: 'row', alignItems: 'center'},
 
   cardRight: { alignItems: 'flex-end', justifyContent: 'space-between', minWidth: 90 },
   dateText: { fontSize: 11, fontWeight: 'bold', color: '#333' },
   heureText: { fontSize: 10, color: '#666', marginBottom: 6 },
   detailBtn: {
-    backgroundColor: '#4B3F8A',
-    borderRadius: 10,
+    backgroundColor: Colors.primary_blue,
+    borderRadius: 30,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   detailBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  container: {
+        borderBottomRightRadius: 30,
+        borderBottomLeftRadius: 30,
+        paddingBottom: 10,
+        marginBottom: 10,
+    },
+    title: { fontSize: 40, fontWeight: 'bold', color: Colors.white },
+    searchSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: Colors.grey,
+        borderRadius: 10,
+        marginLeft: 10,
+        marginRight: 10,
+        marginBottom: 10,
+        paddingHorizontal: 10,
+    },
+    input: {
+        backgroundColor: Colors.white,
+        margin: 5,
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        fontSize: 16,
+        flex: 1,
+        paddingTop: 10,
+        paddingRight: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        color: '#424242',
+    },
+    mascotte: {
+        alignSelf: 'center',
+    },
+    header : {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginLeft: 20,
+        marginRight: 20,
+    },
+    textAucun: {
+        fontSize: 16,
+        color: 'gray',
+        margin: 20,
+    },  
+    avatarPlaceholder: { 
+        width: 60, 
+        height: 60, 
+        borderRadius: 100, 
+        backgroundColor: '#CCC',  
+        overflow: 'hidden',
+    },
+    detailContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
 });

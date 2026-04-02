@@ -13,7 +13,7 @@ import RootNavigatorFormateur from './RootNavigatorFormateur';
 import {Colors} from '../constants/Colors';
 import EditProfile from '../screens/EditProfile';
 import ChangePassword from '../screens/ChangePassword';
-import ListeParticipants from '../screens/Formateur/ListeParticipants';
+import ListeParticipants from '../screens/ListeParticipants';
 
 
 const Stack = createNativeStackNavigator();
@@ -52,7 +52,14 @@ const AppNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="FormateurRoot" component={RootNavigatorFormateur} />
-          <Stack.Screen name="ListeParticipants" component={ListeParticipants} /> 
+          <Stack.Screen name="ListeParticipants" component={ListeParticipants}
+        options={{
+            headerTitle: "Session",
+            headerShown: true,
+            headerTitleAlign: 'center',
+            headerTitleStyle: { fontSize: 24, fontWeight: 'bold'},
+            headerTintColor: Colors.primary_blue,
+            headerShadowVisible: false,}} />
           <Stack.Screen name="Profile" component={Settings}/>
           <Stack.Screen name="EditProfile" component={EditProfile}/>
           <Stack.Screen name="ChangePassword" component={ChangePassword}/>
