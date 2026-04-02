@@ -15,7 +15,7 @@ import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-pick
 import Avatar from '../components/Avatar';
 import {useAuth} from '../context/AuthContext'
 import Gallery from '../components/Gallery'
-import Trash from '../components/Trash'
+import Bin from '../components/Bin'
 
 const EditProfile = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
@@ -230,7 +230,7 @@ const EditProfile = ({ navigation }: any) => {
                                 <Text>Gallerie</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={removePhoto} style={styles.optionPhoto}>
-                                <Trash/>
+                                <Bin/>
                                 <Text>Supprimer</Text>
                             </TouchableOpacity>
                         </View>

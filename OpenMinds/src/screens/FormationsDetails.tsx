@@ -21,7 +21,7 @@ const InfoFormation = ({titre, numero, presentiel, colorTitle, total} :{ titre :
   </View>
 );
 
-interface FormationDetailsProps {
+interface FormationAdminsProps {
   image: string;
   numero: number;
   title: string;
@@ -36,7 +36,7 @@ interface FormationDetailsProps {
 const FormationsDetails = () => {
 
   const route = useRoute();
-  const { colorTitle, title, duration, numero, presentiel, total, image, id} = (route.params as FormationDetailsProps) || {};
+  const { colorTitle, title, duration, numero, presentiel, total, image, id} = (route.params as FormationAdminsProps) || {};
 
   const [formation, setFormation] = useState<any>(null)
   const [sessions, setSessions] = useState<any>(null)
