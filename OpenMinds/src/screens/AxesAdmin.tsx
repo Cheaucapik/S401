@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, FlatList, Alert, PanResponder } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, FlatList, Alert, PanResponder, ScrollView } from 'react-native'
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import LinearGradient from 'react-native-linear-gradient'
 import { Colors } from '../constants/Colors'
@@ -8,11 +8,8 @@ import MascotteForma from '../components/MascotteForma'
 import Account from '../components/Account'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import File from '../components/File'
 import Descr from '../components/Descr'
-
-// ─── Utilitaires couleur ──────────────────────────────────────────────────
 
 function hsvToHex(h: number, s: number, v: number): string {
     const f = (n: number) => {
@@ -30,8 +27,6 @@ function darkenHex(hex: string, factor = 0.45): string {
     const toHex = (x: number) => Math.round(x * (1 - factor)).toString(16).padStart(2, '0')
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
-
-// ─── Color Picker HSV ─────────────────────────────────────────────────────
 
 const PICKER_W = 260
 const PICKER_H = 160
@@ -79,21 +74,16 @@ const ColorPickerHSV = ({ onChange }: { onChange: (hex: string) => void }) => {
 
     return (
         <View style={pickerStyle.container}>
-            {/* Carré SV */}
             <View style={pickerStyle.svWrapper} {...svResponder.panHandlers}>
                 <View style={[StyleSheet.absoluteFill, { backgroundColor: hueColor }]} />
                 <LinearGradient style={StyleSheet.absoluteFill} colors={['#fff', 'transparent']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} />
                 <LinearGradient style={StyleSheet.absoluteFill} colors={['transparent', '#000']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} />
                 <View style={[pickerStyle.svCursor, { left: sat * PICKER_W - 8, top: (1 - val) * PICKER_H - 8 }]} />
             </View>
-
-            {/* Barre teinte */}
             <View style={pickerStyle.hueWrapper} {...hueResponder.panHandlers}>
                 <LinearGradient style={StyleSheet.absoluteFill} colors={['#f00','#ff0','#0f0','#0ff','#00f','#f0f','#f00']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} />
                 <View style={[pickerStyle.hueCursor, { left: hue / 360 * PICKER_W - 7 }]} />
             </View>
-
-            {/* Aperçu */}
             <View style={pickerStyle.preview}>
                 <View style={[pickerStyle.previewDot, { backgroundColor: currentHex }]} />
                 <Text style={pickerStyle.previewText}># {currentHex.slice(1).toUpperCase()}</Text>
@@ -112,8 +102,6 @@ const pickerStyle = StyleSheet.create({
     previewDot: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: '#ccc' },
     previewText: { fontSize: 13, fontWeight: '600', color: '#444' },
 })
-
-// ─── Écran AxesAdmin ──────────────────────────────────────────────────────
 
 const AxesAdmin = ({ navigation }: any) => {
     const insets = useSafeAreaInsets()
@@ -134,15 +122,11 @@ const AxesAdmin = ({ navigation }: any) => {
 
     const chargerAxes = async () => {
         try {
-            console.log('[AxesAdmin] GET:', ENDPOINTS.THEMATIQUES)
             const response = await fetch(ENDPOINTS.THEMATIQUES)
-            console.log('[AxesAdmin] Status:', response.status)
             const data = await response.json()
-            console.log('[AxesAdmin] Axes:', data.length)
             setFormations(data)
-        } catch (error) {
-            console.error('[AxesAdmin] Erreur chargement:', error)
-            Alert.alert('Erreur réseau', 'Impossible de charger les axes.\nVérifie que le back est lancé et l\'IP dans api.ts.')
+        } catch {
+            setTimeout(() => Alert.alert('Erreur réseau', 'Impossible de charger les axes.'), 100)
         }
     }
 
@@ -153,10 +137,41 @@ const AxesAdmin = ({ navigation }: any) => {
         setFilteredData(formations.filter(item => item.title.toLowerCase().includes(query.toLowerCase())))
     }
 
+    const handleSupprimerAxe = (axe: any) => {
+        const nbFormations = axe._count?.formations ?? 0
+        if (nbFormations > 0) {
+            setTimeout(() => Alert.alert('Suppression impossible', 'Il y a encore des formations dans cet axe.'), 100)
+            return
+        }
+        setTimeout(() => Alert.alert(
+            'Supprimer l\'axe',
+            `Voulez-vous vraiment supprimer "${axe.title}" ?`,
+            [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                    text: 'Supprimer', style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(`${ENDPOINTS.THEMATIQUES}/${axe.id_thematique}`, { method: 'DELETE' })
+                            if (response.ok) {
+                                chargerAxes()
+                            } else {
+                                const data = await response.json()
+                                setTimeout(() => Alert.alert('Erreur', data.error || 'Impossible de supprimer.'), 100)
+                            }
+                        } catch {
+                            setTimeout(() => Alert.alert('Erreur réseau', 'Impossible de contacter le serveur.'), 100)
+                        }
+                    }
+                }
+            ]
+        ), 100)
+    }
+
     const handleAjouterAxe = async () => {
-        console.log('[AxesAdmin] Ajout:', { nom, description, couleur, couleurTitre })
+        console.log('[AxesAdmin] handleAjouterAxe appelé')
         if (!nom.trim() || !description.trim()) {
-            Alert.alert('Champs manquants', 'Le nom et la description sont obligatoires.')
+            setTimeout(() => Alert.alert('Champs manquants', 'Le nom et la description sont obligatoires.'), 100)
             return
         }
         setLoading(true)
@@ -170,18 +185,17 @@ const AxesAdmin = ({ navigation }: any) => {
             })
             console.log('[AxesAdmin] Status POST:', response.status)
             const data = await response.json()
-            console.log('[AxesAdmin] Réponse:', data)
             if (response.ok) {
-                Alert.alert('Succès', 'Axe ajouté !')
                 setVisible(false)
                 setNom(''); setDescription(''); setCouleur('#E8E7FE'); setCouleurTitre('#5A4DB2')
                 chargerAxes()
+                setTimeout(() => Alert.alert('Succès', 'Axe ajouté !'), 300)
             } else {
-                Alert.alert('Erreur serveur', data.error || 'Impossible d\'ajouter l\'axe.')
+                setTimeout(() => Alert.alert('Erreur serveur', data.error || 'Impossible d\'ajouter l\'axe.'), 100)
             }
         } catch (error) {
-            console.error('[AxesAdmin] Erreur réseau ajout:', error)
-            Alert.alert('Erreur réseau', 'Impossible de contacter le serveur.\nVérifie l\'IP dans api.ts et que npm run dev est lancé.')
+            console.error('[AxesAdmin] Erreur:', error)
+            setTimeout(() => Alert.alert('Erreur réseau', 'Vérifie l\'IP dans api.ts et que npm run dev est lancé.'), 100)
         } finally {
             setLoading(false)
         }
@@ -222,6 +236,7 @@ const AxesAdmin = ({ navigation }: any) => {
                                 id_thematique={item.id_thematique}
                                 progression={item.progression ?? 0}
                                 isAdmin={true}
+                                onDelete={() => handleSupprimerAxe(item)}
                             />
                         </TouchableOpacity>
                     )}
@@ -240,36 +255,27 @@ const AxesAdmin = ({ navigation }: any) => {
             <Modal visible={visible} transparent animationType="slide">
                 <View style={styles.modalBackground}>
                     <View style={styles.modalBox}>
-                        <View style={styles.containerModal}>
-
+                        <ScrollView contentContainerStyle={styles.containerModal} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
                             <View style={styles.inputContainer}>
                                 <File />
                                 <TextInput style={styles.inputModal} placeholder="Nom" placeholderTextColor="#fff" value={nom} onChangeText={setNom} />
                             </View>
-
                             <View style={styles.inputContainer}>
                                 <Descr />
                                 <TextInput style={styles.inputModal} placeholder="Description" placeholderTextColor="#fff" value={description} onChangeText={setDescription} />
                             </View>
-
-                            <Text style={styles.pickerLabel}>Choisissez la couleur de l'axe</Text>
+                            <Text style={styles.pickerLabel}>Couleur de l'axe (le titre sera automatiquement plus foncé)</Text>
                             <ColorPickerHSV onChange={handleCouleurChange} />
-
-                            {/* Aperçu */}
                             <View style={[styles.apercu, { backgroundColor: couleur }]}>
-                                <Text style={[styles.apercuText, { color: couleurTitre }]}>
-                                    {nom || 'Nom de l\'axe'}
-                                </Text>
+                                <Text style={[styles.apercuText, { color: couleurTitre }]}>{nom || 'Nom de l\'axe'}</Text>
                             </View>
-
                             <TouchableOpacity style={[styles.button, loading && { opacity: 0.6 }]} onPress={handleAjouterAxe} disabled={loading}>
                                 <Text style={styles.buttonText}>{loading ? 'Envoi...' : '+ Ajouter un axe'}</Text>
                             </TouchableOpacity>
-
                             <TouchableOpacity onPress={() => setVisible(false)}>
                                 <Text style={{ textAlign: 'center', marginTop: 10, color: '#666' }}>Fermer</Text>
                             </TouchableOpacity>
-                        </View>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>
@@ -287,7 +293,7 @@ const styles = StyleSheet.create({
     addAxe: { paddingHorizontal: 30, paddingVertical: 10, backgroundColor: Colors.primary_blue, color: Colors.white, fontWeight: 'bold', fontSize: 20, borderRadius: 30, margin: 60, textAlign: 'center' },
     modalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
     modalBox: { width: '88%', backgroundColor: '#fff', borderRadius: 17, padding: 10, maxHeight: '90%' },
-    containerModal: { padding: 16, marginTop: 6 },
+    containerModal: { padding: 16, paddingTop: 10 },
     inputModal: { flex: 1, marginLeft: 10, color: 'white', fontWeight: 'bold' },
     inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E6D6F2', borderRadius: 30, paddingHorizontal: 15, height: 40, marginBottom: 14 },
     button: { backgroundColor: Colors.primary_blue, padding: 8, borderRadius: 30, alignItems: 'center', marginTop: 10, height: 40 },
