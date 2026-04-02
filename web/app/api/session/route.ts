@@ -37,7 +37,8 @@ export async function GET(req: Request) {
           title: s.formation.thematique.title,
           color: s.formation.thematique.color,
           colorTitle: s.formation.thematique.colorTitle,
-        }
+        },
+        type_utilisateur : "FORMATEUR"
       }));
 
       return NextResponse.json(formatted, { status: 200 });

@@ -8,30 +8,37 @@ import MascotteExplorer from '../components/MascotteExplorer'
 import ThematiqueTemplate from '../components/ThematiqueTemplate'
 import { ENDPOINTS } from '../config/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import ProgressionTemplate from '../components/ProgressionTemplate'
+import SessionTemplate from '../components/SessionTemplate'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar';
+import ProgressionTemplate from '../components/ProgressionTemplate'
+import { useNavigation } from '@react-navigation/native'
 
-const Home = ({ navigation }: any) => {
+const Home = () => {
     const insets = useSafeAreaInsets();
+    const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = useState('');
     const [formations, setFormations] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [formationsContinuer, setFormationsContinuer] = useState<any[]>([]);
+    const [sessions, setSessions] = useState<any[]>([]);
     const { user } = useAuth();
 
     const chargerThematiques = async () => {
         const user2 = await AsyncStorage.getItem('userData');
         const userId = user2 ? JSON.parse(user2).id : null;
-        const [response, continuationResponse] = await Promise.all([
+        const [response, continuationResponse, sessions] = await Promise.all([
             fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}`),
-            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=continuer`)
+            fetch(`${ENDPOINTS.THEMATIQUES}?idBenevole=${userId}&statut=continuer`),
+            fetch(`${ENDPOINTS.SESSION_BENEVOLE}?idBenevole=${userId}`)
         ]);
         const data = await response.json();
         const dataContinuation = await continuationResponse.json();
+        const dataSessions = await sessions.json();
 
         setFormations(data);
         setFormationsContinuer(dataContinuation);
+        setSessions(dataSessions);
     };
 
     useEffect(() => {
@@ -44,11 +51,13 @@ const Home = ({ navigation }: any) => {
         setFilteredData(newData);
     }
 
+    const now = new Date().toISOString();
+
     const sections = searchQuery !== '' 
         ? [{ title: 'Recherche', data: filteredData, type: 'SEARCH' }]
         : [
             { title: 'Ma progression', data: [formationsContinuer.filter(item => item.progression < item._count.formations)], type: 'PROGRESSION' },
-            { title: 'Mon Calendrier', data: [null], type: 'CALENDAR' }
+            { title: 'Mes sessions', data: [sessions.filter(item => item.date_deb > now)], type: 'SESSIONS' }
         ];
 
     return (
@@ -66,7 +75,7 @@ const Home = ({ navigation }: any) => {
                 >
                     <View style={[{ marginTop: insets.top, marginBottom: 20 }, styles.header]}>
                         <Text style={styles.title}>Explorer</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                        <TouchableOpacity onPress={() => (navigation as any).navigation.navigate('Profile')}>
                             <Avatar uri={user?.pfp} size={60} />
                         </TouchableOpacity>
                     </View>
@@ -131,8 +140,33 @@ const Home = ({ navigation }: any) => {
                     );
                 }
 
-                if (section.type === 'CALENDAR') {
-                    return <View style={{ height: 100 }} /> 
+                if (section.type === 'SESSIONS') {
+                    return (
+                    <FlatList
+                        style={{marginBottom : 30}}
+                        data={item}
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(s) => s.id_session.toString()}
+                        renderItem={({ item: s }) => (
+                            <SessionTemplate 
+                                    id_session={s.id_session}
+                                    date_deb={s.date_deb}
+                                    date_fin={s.date_fin}
+                                    presentiel={s.presentiel}
+                                    title={s.formation.title}
+                                    duration={s.formation.duration}
+                                    image={s.formation.image}
+                                    color={s.thematique.color}
+                                    colorTitle={s.thematique.colorTitle}
+                                    description={s.formation.description}
+                                    type_user={s.type_utilisateur}
+                                    numero={s.formation.numero}
+                                    total={s.thematique.totalFormations}
+                                    id_formation={s.formation.id_formation}
+                                />
+                            )}
+                            bounces={true}
+                        /> )
                 }
 
                 return null;

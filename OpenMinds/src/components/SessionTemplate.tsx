@@ -25,9 +25,13 @@ interface SessionProps {
     date_deb : string, 
     date_fin : string, 
     id_session : number,
+    type_user : string
+    total? : number,
+    numero? : number,
+    id_formation? : number
 }
 
-const SessionTemplate = ({color, colorTitle, image, title, description, duration, presentiel, date_deb, date_fin, id_session} : SessionProps) => {
+const SessionTemplate = ({color, colorTitle, image, title, description, duration, presentiel, date_deb, date_fin, id_session, type_user, total, numero, id_formation} : SessionProps) => {
 const navigation = useNavigation<any>();
   return (
     <View style={[styles.card, { backgroundColor: color, marginHorizontal : 20}]}>
@@ -54,7 +58,7 @@ const navigation = useNavigation<any>();
         <Text style={styles.heureText}>{formatHeure(date_deb)} - {formatHeure(date_fin)}</Text>
         <TouchableOpacity
           style={styles.detailBtn}
-          onPress={() => navigation.navigate('ListeParticipants', { sessionId: id_session })}
+          onPress={() => type_user === "BENEVOLE" ? (navigation.navigate('FormationsDetails', {titre : title, presentiel : presentiel, colorTitle : colorTitle, total : total, image : image, numero : numero, id : id_formation, duration : duration})) : (navigation.navigate('ListeParticipants', { sessionId: id_session }))}
         >
           <Text style={styles.detailBtnText}>Détails</Text>
         </TouchableOpacity>

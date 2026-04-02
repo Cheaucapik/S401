@@ -127,7 +127,7 @@ const HomeFormateur = ({ navigation }: any) => {
             renderItem={({ item, section } : { item: any, section: any }) => {
                 if (section.type === 'SEARCH') {
                     return (
-                        <SessionTemplate presentiel={item.presentiel} date_deb={item.date_deb} date_fin={item.date_fin} description={item.formation.description} color={item.thematique.color} colorTitle={item.thematique.colorTitle} title={item.formation.title} duration={item.formation.duration} image={item.formation.image} id_session={item.id_session} />
+                        <SessionTemplate presentiel={item.presentiel} date_deb={item.date_deb} date_fin={item.date_fin} description={item.formation.description} color={item.thematique.color} colorTitle={item.thematique.colorTitle} title={item.formation.title} duration={item.formation.duration} image={item.formation.image} id_session={item.id_session} type_user={item.type_utilisateur} />
                     );
                 }
 
