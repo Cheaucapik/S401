@@ -46,7 +46,36 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
     }
   }
+// --- CAS ADMIN : sessions d'une formation ---
+  if (idFormation && !idBenevole) {
+    try {
+      const sessions = await prisma.session.findMany({
+        where: { idFormation: parseInt(idFormation) },
+        include: {
+          formateur: {
+            include: { utilisateur: { select: { nom: true, prenom: true } } }
+          }
+        },
+        orderBy: { date_deb: 'asc' }
+      });
 
+      const formatted = sessions.map(s => ({
+        id_session: s.id_session,
+        date_deb: s.date_deb,
+        date_fin: s.date_fin,
+        presentiel: s.presentiel,
+        lieu: s.lieu,
+        formateur: s.formateur ? {
+          nom: s.formateur.utilisateur.nom,
+          prenom: s.formateur.utilisateur.prenom,
+        } : null,
+      }));
+
+      return NextResponse.json(formatted);
+    } catch (error) {
+      return NextResponse.json({ error: "Erreur lors de la récupération" }, { status: 500 });
+    }
+  }
   // --- CAS BENEVOLE ---
   try {
     const sessions = await prisma.session.findMany({
@@ -59,5 +88,30 @@ export async function GET(req: Request) {
     return NextResponse.json(sessions);
   } catch (error) {
     return NextResponse.json({ error: "Erreur lors de la récupération" }, { status: 500 });
+  }
+}
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { date_deb, date_fin, presentiel, lieu, idFormation, idFormateur } = body;
+
+    if (!date_deb || !date_fin || !idFormation || !idFormateur) {
+      return NextResponse.json({ error: 'Champs obligatoires manquants.' }, { status: 400 });
+    }
+
+    const session = await prisma.session.create({
+      data: {
+        date_deb: new Date(date_deb),
+        date_fin: new Date(date_fin),
+        presentiel: presentiel ?? true,
+        lieu: lieu ?? 'À définir',
+        idFormation: parseInt(idFormation),
+        idFormateur: parseInt(idFormateur),
+      },
+    });
+
+    return NextResponse.json(session, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Erreur lors de la création de la session.' }, { status: 500 });
   }
 }
