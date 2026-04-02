@@ -5,15 +5,17 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { ENDPOINTS } from '../config/api';
 import Rond from '../components/Rond';
 import { LinearGradient } from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChoixSession = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { formationId, formationTitle } = (route.params as any) || {};
+    const { formationId, formationTitle, duration } = (route.params as any) || {};
 
     const [loading, setLoading] = useState(true);
     const [sessions, setSessions] = useState<any[]>([]);
     const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchSessions = async () => {
@@ -30,13 +32,45 @@ const ChoixSession = () => {
         fetchSessions();
     }, [formationId]);
 
-    const handleValider = () => {
+    const handleValider = async () => {
         if (!selectedId) {
             Alert.alert("Sélection", "Veuillez choisir une date.");
             return;
         }
-        Alert.alert("Succès", "Votre inscription a bien été prise en compte !");
-        navigation.goBack();
+
+        setSubmitting(true);
+        try {
+            const userData = await AsyncStorage.getItem('userData');
+            const userId = userData ? JSON.parse(userData).id : null;
+
+            if (!userId) {
+                Alert.alert("Erreur", "Utilisateur introuvable.");
+                return;
+            }
+
+            const response = await fetch(ENDPOINTS.SUIVI, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    idBenevole: userId,
+                    idSession: selectedId,
+                    statut: false,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                Alert.alert("Succès", "Votre inscription a bien été prise en compte !");
+                navigation.goBack();
+            } else {
+                Alert.alert("Erreur", data.error || "Impossible de s'inscrire.");
+            }
+        } catch (error) {
+            Alert.alert("Erreur réseau", "Connexion au serveur impossible.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const renderItem = ({ item }: { item: any }) => {
@@ -47,7 +81,7 @@ const ChoixSession = () => {
         const isSelected = selectedId === item.id_session;
 
         return (
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={[styles.card, isSelected && styles.selectedCard]}
                 onPress={() => setSelectedId(item.id_session)}
                 activeOpacity={0.9}
@@ -60,10 +94,10 @@ const ChoixSession = () => {
                         </View>
                         <Text style={styles.lieu} numberOfLines={1}>{item.lieu}</Text>
                         <View style={styles.row}>
-                            <Text style={styles.boldText}>Durée : 2h</Text>
+                            <Text style={styles.boldText}>Durée : {duration ?? item.duration ?? '?'}h</Text>
                             <View style={styles.typeContainer}>
                                 <Text style={styles.boldText}>
-                                    {item.presentiel ? 'Présentiel' : 'À distance'}
+                                    {item.presentiel ? 'Présentiel' : 'En ligne'}
                                 </Text>
                                 <Rond color={item.presentiel ? Colors.green : Colors.red} />
                             </View>
@@ -71,7 +105,6 @@ const ChoixSession = () => {
                     </View>
                 </View>
 
-                {/* Bloc Date/Heure avec Z-Index élevé pour éviter le cadre blanc */}
                 <View style={styles.dateCol}>
                     <Text style={styles.dateText}>{dateStr}</Text>
                     <Text style={styles.hourText}>{startHour}h-{endHour}h</Text>
@@ -93,9 +126,14 @@ const ChoixSession = () => {
                     ListEmptyComponent={<Text style={styles.empty}>Aucune session disponible.</Text>}
                 />
             )}
-            <TouchableOpacity onPress={handleValider}>
-                <LinearGradient colors={[Colors.purple, Colors.axe_color_blue]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.btn}>
-                    <Text style={styles.btnText}>Valider</Text>
+            <TouchableOpacity onPress={handleValider} disabled={submitting}>
+                <LinearGradient
+                    colors={[Colors.purple, Colors.primary_blue]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.btn, submitting && { opacity: 0.6 }]}
+                >
+                    <Text style={styles.btnText}>{submitting ? 'Inscription...' : 'Valider'}</Text>
                 </LinearGradient>
             </TouchableOpacity>
         </View>
@@ -104,11 +142,11 @@ const ChoixSession = () => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.white, paddingHorizontal: 25 },
-    mainTitle: { fontSize: 24, fontWeight: 'bold', color: Colors.font, textAlign: 'center', marginVertical: 30 },
-    card: { 
-        flexDirection: 'row', backgroundColor: '#FDF7FF', borderRadius: 25, 
-        padding: 18, marginBottom: 15, elevation: 4, borderWidth: 2, 
-        borderColor: 'transparent', position: 'relative' 
+    mainTitle: { fontSize: 24, fontWeight: 'bold', color: Colors.primary_blue, textAlign: 'center', marginVertical: 30 },
+    card: {
+        flexDirection: 'row', backgroundColor: '#FDF7FF', borderRadius: 25,
+        padding: 18, marginBottom: 15, elevation: 4, borderWidth: 2,
+        borderColor: 'transparent', position: 'relative'
     },
     selectedCard: { borderColor: Colors.purple, backgroundColor: '#F5EFFF' },
     cardContent: { flexDirection: 'row', flex: 1, alignItems: 'center', paddingRight: 85 },
@@ -118,7 +156,7 @@ const styles = StyleSheet.create({
     badgeText: { color: 'white', fontSize: 11, fontWeight: 'bold' },
     lieu: { fontSize: 13, color: '#9F9A9A', marginBottom: 8 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 15 },
-    typeContainer: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'transparent' },
+    typeContainer: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     boldText: { fontSize: 13, fontWeight: 'bold' },
     dateCol: { position: 'absolute', right: 20, top: 25, alignItems: 'flex-end', zIndex: 999 },
     dateText: { color: Colors.purple, fontWeight: 'bold', fontSize: 18 },

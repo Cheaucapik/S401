@@ -16,6 +16,8 @@ import ChangePassword from '../screens/ChangePassword';
 import ListeParticipants from '../screens/ListeParticipants';
 import FormationsAxe from '../screens/FormationsAxe';
 import FormationAdmin from '../screens/FormationAdmin';
+import ChoixSession from '../screens/ChoixSession';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +47,7 @@ if (isLoading || (token && !user?.role)) return <ActivityIndicator size="large" 
           <Stack.Screen name="Profile" component={Settings}/>
           <Stack.Screen name="EditProfile" component={EditProfile}/>
           <Stack.Screen name="ChangePassword" component={ChangePassword}/>
+          <Stack.Screen name="ChoixSession" component={ChoixSession} />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -75,6 +78,7 @@ if (isLoading || (token && !user?.role)) return <ActivityIndicator size="large" 
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="BenevoleRoot" component={RootNavigator} />
+        <Stack.Screen name="ChoixSession" component={ChoixSession} />
         <Stack.Screen name="FormationsDetails" component={FormationsDetails}
         options={{
             headerTitle: "Formations",
