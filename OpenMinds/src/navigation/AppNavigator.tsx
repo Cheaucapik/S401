@@ -21,9 +21,9 @@ const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const { token, user, isLoading } = useAuth();
+  console.log('[AppNavigator] role:', user?.role, 'token:', !!token)
 
-  if (isLoading) return <ActivityIndicator size="large" style={{flex:1}} />;
-
+if (isLoading || (token && !user?.role)) return <ActivityIndicator size="large" style={{flex:1}} />;
   if (!token) {
     return (
       <NavigationContainer>
