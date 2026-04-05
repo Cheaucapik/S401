@@ -9,4 +9,4 @@ Développement d'une application sur la formation des citoyens sur différentes 
 - Prisma
 
 ### MCD associé : 
-![MCD](./OpenMinds/src/assets/looping.png)
+![MCD](./OpenMinds/src/assets/image_2026-04-05_212555109.png)
